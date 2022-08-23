@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "test_flows"
+version = "0.1.0"
+description = "Test flows for Metaflow hacking"
+authors = ["Kevin Smith <kevin@outerbounds.co>"]
+license = "Apache2"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+kubernetes = "^24.2.0"
+metaflow = {path = "../metaflow"}
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.scripts]
+hello_create = "scripts/exec_flow.sh hello argo-workflows create"
+hello_run = "scripts/exec_flow.sh hello argo-workflows trigger"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
