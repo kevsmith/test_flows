@@ -6,10 +6,6 @@ class GoodbyeFlow(FlowSpec):
 
     @step
     def start(self):
-        self.next(self.foo)
-
-    @step
-    def foo(self):
         self.next(self.end)
 
     @step

@@ -21,10 +21,7 @@ class WideHelloFlow(FlowSpec):
 
     @step
     def join(self, inputs):
-        total = 0
-        for i in inputs:
-            total += i
-        self.final_value = total
+        self.final_value = sum([x.doubled for x in inputs])
         self.next(self.end)
 
     @step

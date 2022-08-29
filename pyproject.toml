@@ -8,6 +8,7 @@ license = "Apache2"
 [tool.poetry.dependencies]
 python = "^3.8"
 kubernetes = "^24.2.0"
+PyYAML = "^6.0"
 metaflow = {path = "../metaflow"}
 
 [tool.poetry.dev-dependencies]
