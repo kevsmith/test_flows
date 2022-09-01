@@ -1,8 +1,9 @@
 import os
+import sys
 
-from metaflow import FlowSpec, step, trigger_after
+from metaflow import FlowSpec, step, trigger_on
 
-@trigger_after(flow="GoodbyeFlow")
+@trigger_on(flow="GoodbyeFlow")
 class HelloFlow(FlowSpec):
 
     @step

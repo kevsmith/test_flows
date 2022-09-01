@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: mf-simpleflow-sensor
+  namespace: metaflow-jobs
+spec:
+  template:
+    serviceAccountName: operate-workflow-sa
+  dependencies:
+    - name: recvd-event
+      eventSourceName: mf-finished-nats
+      eventName: finished
+  triggers:
+    - template:
+        name: nats-workflow-trigger
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName:
+              spec:
+                workflowTemplateRef: 
+                  name:
+                arguments:
+                  parameters: []
+          parameters:
+            - src:
+                dependencyName: recvd-event
+                dataTemplate: "{{ .Input.body.payload.flow }}"
+                value: ""
+              dest: spec.workflowTemplateRef.name
+            - src:
+                dependencyName: recvd-event
+                dataTemplate: "{{ .Input.body.payload.flow }}-"
+                value: ""
+              dest: metadata.generateName
+              operation: append

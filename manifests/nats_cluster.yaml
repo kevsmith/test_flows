@@ -1,0 +1,42 @@
+apiVersion: nats.io/v1alpha2
+kind: NatsCluster
+metadata:
+  name: events-nats-cluster
+spec:
+  size: 3
+pod:
+  enableConfigReload: true
+auth:
+  enableServiceAccounts: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nats-admin-user
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nats-user
+---
+apiVersion: nats.io/v1alpha2
+kind: NatsServiceRole
+metadata:
+  name: nats-user
+  labels:
+    nats_cluster: events-nats-cluster
+spec:
+  permissions:
+    publish: ["event.*"]
+    subscribe: ["event.*"]
+---
+apiVersion: nats.io/v1alpha2
+kind: NatsServiceRole
+metadata:
+  name: nats-admin-user
+  labels:
+    nats_cluster: events-nats-cluster
+spec:
+  permissions:
+    publish: [">"]
+    subscribe: [">"]

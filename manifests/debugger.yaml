@@ -2,13 +2,36 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: kevin-debug
-  namespace: metaflow-jobs
 spec:
+  # volumes:
+  # - name: "nats-user-token"
+  #   projected:
+  #     sources:
+  #       - secret:
+  #           name: "nats-user-token"
+  #           items:
+  #             - key: token
+  #               path: token
   containers:
   - name: main
-    image: ubuntu:20.04
-    command: ["/bin/bash", "-c", "tail -f /dev/null"]
+    image: kevinob/debug:latest
+    command: ["/usr/bin/fish", "-il"]
+    tty: true
+    stdin: true
+    stdinOnce: true
     resources:
       requests:
         memory: "8Gi"
-        cpu: 1
+        cpu: 2
+      limits:
+        memory: "8Gi"
+        cpu: 2
+    env:
+      - name: NATS_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: nats-user-token-9l27z
+            key: token
+    # volumeMounts:
+    #   - name: "nats-user-token"
+    #     mountPath: "/var/run/secrets/nats.io"

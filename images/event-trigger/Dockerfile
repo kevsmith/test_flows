@@ -2,8 +2,8 @@ FROM --platform=linux/amd64 python:3.8
 
 RUN apt-get update && apt-get upgrade -y && apt-get -y install inetutils-tools
 
-RUN pip install --upgrade pip && pip install requests
+RUN pip install --upgrade pip && pip install nats-py requests
 
-COPY hook.py /hook.py
+COPY trigger.py /trigger.py
 
-CMD python /hook.py
+CMD python /trigger.py

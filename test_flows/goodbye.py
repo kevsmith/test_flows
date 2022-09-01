@@ -1,6 +1,7 @@
 import os
+import sys
 
-from metaflow import FlowSpec, step
+from metaflow import FlowSpec, step, project
 
 class GoodbyeFlow(FlowSpec):
 
