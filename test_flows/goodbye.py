@@ -1,9 +1,8 @@
 from unicodedata import name
-from metaflow import FlowSpec, step, trigger_on, project
+from metaflow import FlowSpec, step, trigger_on
 
 
 @trigger_on(flow="HelloFlow")
-@project(name="foo")
 class GoodbyeFlow(FlowSpec):
     @step
     def start(self):
