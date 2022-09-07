@@ -14,3 +14,10 @@ flow() {
 
     python test_flows/${flow_name}.py $@
 }
+
+load_test_flows() {
+    for f in $(ls test_flows/{foo,bar,baz,goodbye,hello,rip,three_way}.py)
+    do
+        python ${f} argo-workflows create
+    done
+}
