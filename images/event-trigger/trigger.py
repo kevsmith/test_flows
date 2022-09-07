@@ -5,30 +5,41 @@ import os
 import sys
 
 
-def call_http(url, flow_name, flow_status):
+def call_http(url, body):
     import requests
 
-    ts = int(datetime.utcnow().timestamp())
-    body = {
-        "payload": {"flow_name": flow_name, "flow_status": flow_status, "timestamp": ts}
-    }
     resp = requests.post(url, headers={"content-type": "application/json"}, json=body)
     if resp.status_code >= 400:
         return 1
     return 0
 
 
-async def call_nats(event_source, topic, flow_name, flow_status, auth_token):
+async def call_nats(event_source, msg, auth_token):
     import nats
 
-    ts = int(datetime.utcnow().timestamp())
+    chunks = event_source.split("/")
+    topic = chunks[-1]
+    nats_host = f"nats://{chunks[2]}"
     conn = await nats.connect(event_source, token=auth_token)
-    msg = {
-        "payload": {"flow_name": flow_name, "flow_status": flow_status, "timestamp": ts}
-    }
     body = bytes(json.dumps(msg), "utf-8")
     await conn.publish(topic, body)
     await conn.drain()
+
+
+def make_payload(flow_name, flow_status):
+    ts = int(datetime.utcnow().timestamp())
+    # Emitting raw event
+    if flow_name == "event":
+        msg = {"payload": {"event_name": flow_status, "timestamp": ts}}
+    else:
+        msg = {
+            "payload": {
+                "flow_name": flow_name,
+                "flow_status": flow_status.lower(),
+                "timestamp": ts,
+            }
+        }
+    return msg
 
 
 def main():
@@ -41,16 +52,12 @@ def main():
     if len(sys.argv) < 3:
         raise RuntimeError(f"Not enough args. Expected 3 but have {len(sys.argv)}")
     token = os.getenv("NATS_TOKEN")
-    flow_name = sys.argv[1]
-    flow_status = sys.argv[2].lower()
+    payload = make_payload(sys.argv[1], sys.argv[2])
 
     if event_source.startswith("http://") or event_source.startswith("https://"):
-        call_http(event_source, flow_name, flow_status)
+        call_http(event_source, payload)
     elif event_source.startswith("nats://"):
-        chunks = event_source.split("/")
-        topic = chunks[-1]
-        nats_host = f"nats://{chunks[2]}"
-        return asyncio.run(call_nats(nats_host, topic, flow_name, flow_status, token))
+        return asyncio.run(call_nats(event_source, payload, token))
 
 
 if __name__ == "__main__":
