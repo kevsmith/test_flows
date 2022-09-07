@@ -1,4 +1,4 @@
-from metaflow import FlowSpec, step, project, trigger_on
+from metaflow import FlowSpec, step, emit_event
 
 
 class HelloFlow(FlowSpec):
