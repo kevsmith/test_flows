@@ -26,16 +26,18 @@ async def call_nats(event_source, msg, auth_token):
     await conn.drain()
 
 
-def make_payload(flow_name, flow_status):
+def make_payload(flow_name, flow_status, data):
     ts = int(datetime.utcnow().timestamp())
+    data["metaflow_trigger_timestamp"] = ts
     # Emitting raw event
     if flow_name == "event":
-        msg = {"payload": {"event_name": flow_status, "timestamp": ts}}
+        msg = {"payload": {"event_name": flow_status, "data": data, "timestamp": ts}}
     else:
         msg = {
             "payload": {
                 "flow_name": flow_name,
                 "flow_status": flow_status.lower(),
+                "data": data,
                 "timestamp": ts,
             }
         }
@@ -50,9 +52,24 @@ def main():
     if event_source is None:
         raise RuntimeError("METAFLOW_EVENT_SOURCE not set")
     if len(sys.argv) < 3:
-        raise RuntimeError(f"Not enough args. Expected 3 but have {len(sys.argv)}")
+        raise RuntimeError(
+            f"Not enough args. Expected at least 3 but have {len(sys.argv)}"
+        )
+    if len(sys.argv) == 4:
+        data = json.loads(sys.argv[3])
+    else:
+        data = {}
+    flow_path_spec = "%s/%s" % (
+        os.getenv("METAFLOW_FLOW_NAME"),
+        os.getenv("METAFLOW_RUN_ID"),
+    )
+    step_path_spec = "%s/%s" % (flow_path_spec, os.getenv("METAFLOW_STEP_NAME"))
+    data["metaflow_trigger_flow_spec"] = flow_path_spec
+    data["metaflow_trigger_step_spec"] = step_path_spec
+    data["metaflow_trigger_flow_name"] = os.getenv("METAFLOW_FLOW_NAME")
+    data["metaflow_trigger_run_id"] = os.getenv("METAFLOW_RUN_ID")
     token = os.getenv("NATS_TOKEN")
-    payload = make_payload(sys.argv[1], sys.argv[2])
+    payload = make_payload(sys.argv[1], sys.argv[2], data)
 
     if event_source.startswith("http://") or event_source.startswith("https://"):
         call_http(event_source, payload)
