@@ -15,7 +15,7 @@ spec:
   containers:
   - name: main
     image: kevinob/debug:latest
-    command: ["/usr/bin/fish", "-il"]
+    command: ["/usr/bin/tmux"]
     tty: true
     stdin: true
     stdinOnce: true
