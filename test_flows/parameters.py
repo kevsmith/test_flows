@@ -4,7 +4,7 @@ from metaflow.parameters import Parameter
 
 
 @trigger_on(event="run-me")
-class ParameterizedHelloFlow(FlowSpec):
+class ParametersFlow(FlowSpec):
 
     person = Parameter(name="person", required=True, type=str)
     triggering_flow = Parameter(name="metaflow_trigger_flow_name", type=str)
@@ -29,4 +29,4 @@ class ParameterizedHelloFlow(FlowSpec):
 
 
 if __name__ == "__main__":
-    ParameterizedHelloFlow()
+    ParametersFlow()
