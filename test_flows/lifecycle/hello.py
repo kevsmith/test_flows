@@ -1,4 +1,5 @@
-from metaflow import FlowSpec, step, emit_event
+from unicodedata import name
+from metaflow import FlowSpec, step
 
 
 class HelloFlow(FlowSpec):

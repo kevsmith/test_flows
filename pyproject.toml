@@ -9,8 +9,9 @@ license = "Apache2"
 python = ">=3.8,<3.11"
 kubernetes = "^24.2.0"
 PyYAML = "^6.0"
-metaflow = {path = "../metaflow"}
 taichi = "^1.1.2"
+metaflow = "^2.7.10"
+nats-py = "^2.1.7"
 
 [tool.poetry.dev-dependencies]
 

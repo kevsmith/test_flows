@@ -37,8 +37,20 @@ argo_trigger() {
     python ./${flow_name} argo-workflows trigger
 }
 
+argo_delete() {
+    local flow_name="${1}"
+    shift
+
+    if [ ! -f ./${flow_name} ]; then
+        exit 3
+    fi
+
+    python ./${flow_name} argo-workflows delete
+}
+
 alias acr="argo_create"
 alias atr="argo_trigger"
+alias ade="argo_delete"
 
 
 load_test_flows() {

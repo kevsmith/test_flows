@@ -1,4 +1,3 @@
-from unicodedata import name
 from metaflow import FlowSpec, step, trigger_on
 
 
