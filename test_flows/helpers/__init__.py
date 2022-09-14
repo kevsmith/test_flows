@@ -15,7 +15,8 @@ def flow_path(caller, flow):
 def runners_from_files(caller):
     prefix = path.dirname(caller)
     runners = {}
-    for f in glob.glob(f"{prefix}/*.py"):
+    files = sorted([f for f in glob.glob(f"{prefix}/*.py") if f.find("__") == -1])
+    for f in files:
         runner = FlowRunner(flow_path(caller, f))
         runners[runner.name] = runner
     return runners
