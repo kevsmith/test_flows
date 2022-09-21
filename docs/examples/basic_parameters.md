@@ -47,5 +47,5 @@ if __name__ == "__main__":
 
 ## Explanation
 
-Running `MyNameFlow` emits the custom event `run-me` with a dict payload. `SayMyNameFlow` is triggered by `run-me` and automatically maps the event payload `name` field
-to its `name` parameters.
+Running `MyNameFlow` emits the custom event `run-me` with a dict payload. A run of `SayMyNameFlow` is triggered by `run-me` and automatically maps the event payload `name` field
+to its `name` parameter. The run prints "My name is Kevin." when it finishes.
