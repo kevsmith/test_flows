@@ -42,7 +42,7 @@ class MyAwesomeFlow(FlowSpec):
 
 ### send_event()
 
-Flows can emit custom events via `send_event()`. Event names can contain only lowercase alphanumeric characters and '-'.
+Flows can emit custom events during a run via `send_event()`. Event names can contain only lowercase alphanumeric characters and '-'.
 
 ```python
 from metaflow import FlowSpec, step, trigger_on
