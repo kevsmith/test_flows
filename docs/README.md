@@ -78,11 +78,11 @@ to rename event data fields to match parameters. See [this](./basic_parameters.m
 
 See the links below for annotated examples.
 
-[Basic lifecycle](./basic_lifecycle.md)
+[Basic lifecycle](./examples/basic_lifecycle.md)
 
-[User generated event](./user_event.md)
+[User generated event](./examples/user_event.md)
 
-[Basic parameter mapping](./basic_parameters.md)
+[Basic parameter mapping](./examples/basic_parameters.md)
 
 Multiple events
 
