@@ -84,8 +84,8 @@ See the links below for annotated examples.
 
 [Basic parameter mapping](./examples/basic_parameters.md)
 
-Multiple events
+[Multiple flows/events](./examples/multiple_events.md)
 
-Combining lifecycle and user events
+[Combining lifecycle and user events](./examples/lifecycle_user_events.md)
 
-Advanced parameter mapping
+[Advanced parameter mapping](./examples/advanced_parameters.md)
