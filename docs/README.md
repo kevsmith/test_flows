@@ -72,7 +72,7 @@ class UpstreamFlow(FlowSpec):
 ```
 
 Custom event data are automatically mapped to flow parameters, if any exist. Flows receiving custom events can also use `@trigger_on`'s `mappings` attribute
-to rename event data fields to match parameters. See [this](./examples/basic_parameters.md) link for a detailed example.
+to rename event data fields to match parameters. See [this](./examples/advanced_parameters.md) link for a detailed example of mapping event fields to parameters.
 
 ## Examples
 
