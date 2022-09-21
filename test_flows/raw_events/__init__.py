@@ -21,6 +21,8 @@ def tests(tests=[]):
         Test(rs["three_way_ns.py"], rs["foo_ns.py"], rs["bar.py"], rs["baz_ns.py"])
     )
     tests[-1].add_case(
-        "(NS) triggered by raw events", "three_way_ns.py", ["foo_ns.py", "baz_ns.py"]
+        "(@project) triggered by raw events",
+        "three_way_ns.py",
+        ["foo_ns.py", "baz_ns.py"],
     )
     return tests

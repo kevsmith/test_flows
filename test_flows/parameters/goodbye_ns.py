@@ -1,7 +1,8 @@
-from metaflow import FlowSpec, step, trigger_on
+from metaflow import FlowSpec, step, trigger_on, project
 from metaflow.parameters import Parameter
 
 
+@project(name="donut")
 @trigger_on(flow="HelloFlow")
 class GoodbyeFlow(FlowSpec):
     person = Parameter(name="person", type=str)
@@ -14,7 +15,7 @@ class GoodbyeFlow(FlowSpec):
 
     @step
     def end(self):
-        print("Goodbye")
+        print(f"Goodbye {self.person}")
 
 
 if __name__ == "__main__":

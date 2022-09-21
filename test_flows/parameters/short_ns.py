@@ -1,11 +1,12 @@
-from metaflow import FlowSpec, step, emit_event, project
+from metaflow import FlowSpec, step, project
+from metaflow.plugins import send_event
 
 
 @project(name="wobbly")
 class ShortFlow(FlowSpec):
-    @emit_event(event="run-me", data={"person": "Kevin"})
     @step
     def start(self):
+        send_event("run-me", event_data={"person": "Kevin"})
         self.next(self.end)
 
     @step

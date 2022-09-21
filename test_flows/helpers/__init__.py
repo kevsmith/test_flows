@@ -31,7 +31,9 @@ def pluralize(things, singular, plural):
 
 def run_tests(tests):
     for t in tests:
-        t.run()
+        result = "r"
+        while result == "r":
+            result = t.run()
 
     passed = True
 
@@ -66,28 +68,26 @@ class Command:
 class FlowRunner:
     def __init__(self, flow):
         self.name = path.basename(flow)
-        self.deleter = Command(["python", flow, "--quiet", "argo-workflows", "delete"])
+        self.flow = flow
         self.creator = Command(["python", flow, "--quiet", "argo-workflows", "create"])
         self.starter = Command(["python", flow, "--quiet", "argo-workflows", "trigger"])
 
     def setup(self):
-        print(f"Setting up {self.name}")
-        self.deleter.should()
+        print(f"Setting up {self.name} ({self.flow})")
         self.creator.must()
 
     def run(self):
         print(f"Starting {self.name}")
         self.starter.must()
 
-    def cleanup(self):
-        print(f"Cleaning up {self.name}")
-        self.deleter.should()
-
 
 class TestCase:
-    def __init__(self, name, trigger, targets, should_run, should_succeed):
+    def __init__(self, name, triggers, targets, should_run, should_succeed):
         self.name = name
-        self.trigger = trigger
+        if type(triggers) == str:
+            self.triggers = [triggers]
+        else:
+            self.triggers = triggers
         self.targets = targets
         self.should_run = should_run
         self.should_succeed = should_succeed
@@ -97,7 +97,7 @@ class TestCase:
         others = [
             key
             for key in runners.keys()
-            if key not in self.targets and key != self.trigger
+            if key not in self.targets and key not in self.triggers
         ]
         answer = "n"
         if self.should_run:
@@ -105,6 +105,8 @@ class TestCase:
                 answer = input(
                     f"Did the {', '.join(self.targets)} {pluralize(self.targets, 'flow', 'flows')} run and succeed (y/n)? "
                 ).lower()
+                if answer == "r":
+                    return answer
                 if answer in ["y", "yes"] and len(others) > 0:
                     answer = input(
                         f"Did {pluralize(others, 'flow', 'flows')} {', '.join(others)} NOT run (y/n)? "
@@ -113,16 +115,24 @@ class TestCase:
                 answer = input(f"Did {self.target} flow run and fail (y/n)? ").lower()
         else:
             answer = input(f"Did {self.target} flow NOT run (y/n)? ").lower()
-        return answer in ["y", "yes"]
+        if answer == "r":
+            return answer
+        else:
+            return answer in ["y", "yes"]
 
     def run(self, runners):
         header = ""
-        while len(header) < len(f"Testing case {self.name}"):
+        while len(header) < len(f"Case: {self.name}"):
             header = f"{header}-"
-        print(f"\n\nTesting case {self.name}\n{header}", flush=True)
-        runners[self.trigger].run()
-        self.passed = self.prompt(runners)
-        return self.passed
+        print(f"\n\nCase: {self.name}\n{header}", flush=True)
+        for name in self.triggers:
+            runners[name].run()
+        result = self.prompt(runners)
+        if result == "r":
+            self.passed = False
+        else:
+            self.passed = result
+        return result
 
 
 class Test:
@@ -133,13 +143,8 @@ class Test:
         self.cases = []
 
     def setup(self):
-        try:
-            for name in self.runners.keys():
-                self.runners[name].setup()
-        except Exception as e:
-            for name in self.runners.keys():
-                self.runners[name].cleanup()
-            raise e
+        for name in self.runners.keys():
+            self.runners[name].setup()
 
     def add_case(self, name, trigger_flow, targets, should_run=True, succeeded=True):
         if type(targets) == str:
@@ -149,12 +154,10 @@ class Test:
     def run(self):
         self.setup()
         random.shuffle(self.cases)
-        try:
-            for case in self.cases:
-                case.run(self.runners)
-        finally:
-            for name in self.runners.keys():
-                self.runners[name].cleanup()
+        for case in self.cases:
+            result = case.run(self.runners)
+            if result == "r":
+                return result
 
     def _format_case_name(self, case_name):
         while len(case_name) < 55:

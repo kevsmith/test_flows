@@ -213,17 +213,6 @@ pylint = "*"
 requests = "*"
 
 [[package]]
-name = "nats-py"
-version = "2.1.7"
-description = "NATS client for Python"
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.extras]
-nkeys = ["nkeys"]
-
-[[package]]
 name = "numpy"
 version = "1.23.2"
 description = "NumPy is the fundamental package for array computing with Python."
@@ -497,7 +486,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "37790d4c1993b48df701e39af32bc393e6ea8e92ee43ca8f72ef2635f43782a8"
+content-hash = "fba91c6c976837a0628dae833a8c0f5f9fc92621db2c4abf2001f26895c4cfd4"
 
 [metadata.files]
 astroid = [
@@ -606,9 +595,6 @@ mccabe = [
 metaflow = [
     {file = "metaflow-2.7.10-py2.py3-none-any.whl", hash = "sha256:4bbc52b1e97e7e63f088a41fd78572ab3a3a25e8e6b5c56bc804bf46f4777777"},
     {file = "metaflow-2.7.10.tar.gz", hash = "sha256:6e705ba433d2073dcab0ef20ec3e496cbc4fff7d9c2ee9502408790ac9530fcd"},
-]
-nats-py = [
-    {file = "nats-py-2.1.7.tar.gz", hash = "sha256:e26e2c8be52e7f76c3f701d5d7d4b0935e52b17c97b2e01ab9275d4c71423c41"},
 ]
 numpy = [
     {file = "numpy-1.23.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:e603ca1fb47b913942f3e660a15e55a9ebca906857edfea476ae5f0fe9b457d5"},

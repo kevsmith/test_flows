@@ -1,4 +1,5 @@
-from metaflow import FlowSpec, emit_event, step
+from metaflow import FlowSpec, step
+from metaflow.plugins import send_event
 
 
 class ThreeWayFlow(FlowSpec):
@@ -6,19 +7,19 @@ class ThreeWayFlow(FlowSpec):
     def start(self):
         self.next(self.foo)
 
-    @emit_event(event="my-event")
     @step
     def foo(self):
+        send_event("my-event")
         self.next(self.bar)
 
-    @emit_event(event="my-other-event")
     @step
     def bar(self):
+        send_event("my-other-event")
         self.next(self.end)
 
-    @emit_event(event="my-other-other-event")
     @step
     def end(self):
+        send_event("my-other-other-event")
         print("Done")
 
 

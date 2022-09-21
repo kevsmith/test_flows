@@ -2,19 +2,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: EventSource
 metadata:
-  name: metaflow-nats
+  name: metaflow-nats-events
   namespace: metaflow-jobs
 spec:
   nats:
-    event:
+    nats_event:
       # url of the nats service
-      url: nats://events-nats-cluster
+      url: nats://eventbus-default-stan-svc:4222
       jsonBody: true
       subject: event
       auth:
         token:
-          name: nats-user-token-9l27z
-          key: token
+          name: eventbus-default-js-client-auth
+          key: client-auth
       # optional backoff time for connection retries.
       # if not provided, default connection backoff time will be used.
       connectionBackoff:

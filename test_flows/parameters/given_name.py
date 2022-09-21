@@ -2,16 +2,16 @@ from metaflow import FlowSpec, step
 from metaflow.plugins import send_event
 
 
-class ShortFlow(FlowSpec):
+class GivenNameFlow(FlowSpec):
     @step
     def start(self):
-        send_event("run-me", event_data={"person": "Kevin"})
+        send_event("given_name", event_data={"given_name": "Alan"})
         self.next(self.end)
 
     @step
     def end(self):
-        return
+        print("Done")
 
 
 if __name__ == "__main__":
-    ShortFlow()
+    GivenNameFlow()

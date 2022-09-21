@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: EventSource
 metadata:
-  name: metaflow-lifecycle
+  name: metaflow-webhook
   namespace: metaflow-jobs
 spec:
   webhook:
