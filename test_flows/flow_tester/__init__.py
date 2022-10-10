@@ -1,8 +1,30 @@
+from datetime import datetime, timedelta
 import glob
 import subprocess
 import random
+import re
 from os import path
-from sys import stdin, stderr
+from time import sleep
+
+from kubernetes import client
+
+from .cluster import FlowFinder, FlowRunner
+
+
+def wait_for_status(flows, desired):
+    final_statuses = ["Succeeded", "Failed", "Error"].remove(desired)
+    finalists = []
+    skipped = []
+    while len(finalists) + len(skipped) < len(flows):
+        for flow in flows:
+            if flow.id in finalists:
+                continue
+            flow.wait_until_refresh()
+            if flow.status == desired:
+                finalists.append(flow.id)
+            elif flow.status in final_statuses:
+                skipped.append(flow.id)
+    return len(finalists) == len(flows)
 
 
 def flow_path(caller, flow):
@@ -47,40 +69,6 @@ def run_tests(tests):
         print("\nResult: PASS\n\n")
 
 
-class Command:
-    def __init__(self, cmd):
-        if type(cmd) == str:
-            self.commands = cmd.split(" ")
-        else:
-            self.commands = cmd
-
-    def execute(self):
-        result = subprocess.run(self.commands, stdout=subprocess.DEVNULL)
-        return result
-
-    def must(self):
-        self.execute().check_returncode()
-
-    def should(self):
-        return self.execute().returncode == 0
-
-
-class FlowRunner:
-    def __init__(self, flow):
-        self.name = path.basename(flow)
-        self.flow = flow
-        self.creator = Command(["python", flow, "--quiet", "argo-workflows", "create"])
-        self.starter = Command(["python", flow, "--quiet", "argo-workflows", "trigger"])
-
-    def setup(self):
-        print(f"Setting up {self.name} ({self.flow})")
-        self.creator.must()
-
-    def run(self):
-        print(f"Starting {self.name}")
-        self.starter.must()
-
-
 class TestCase:
     def __init__(self, name, triggers, targets, should_run, should_succeed):
         self.name = name
@@ -93,46 +81,35 @@ class TestCase:
         self.should_succeed = should_succeed
         self.passed = False
 
-    def prompt(self, runners):
-        others = [
-            key
-            for key in runners.keys()
-            if key not in self.targets and key not in self.triggers
-        ]
-        answer = "n"
-        if self.should_run:
-            if self.should_succeed:
-                answer = input(
-                    f"Did the {', '.join(self.targets)} {pluralize(self.targets, 'flow', 'flows')} run and succeed (y/n)? "
-                ).lower()
-                if answer == "r":
-                    return answer
-                if answer in ["y", "yes"] and len(others) > 0:
-                    answer = input(
-                        f"Did {pluralize(others, 'flow', 'flows')} {', '.join(others)} NOT run (y/n)? "
-                    ).lower()
-            else:
-                answer = input(f"Did {self.target} flow run and fail (y/n)? ").lower()
-        else:
-            answer = input(f"Did {self.target} flow NOT run (y/n)? ").lower()
-        if answer == "r":
-            return answer
-        else:
-            return answer in ["y", "yes"]
-
     def run(self, runners):
         header = ""
         while len(header) < len(f"Case: {self.name}"):
             header = f"{header}-"
         print(f"\n\nCase: {self.name}\n{header}", flush=True)
-        for name in self.triggers:
-            runners[name].run()
-        result = self.prompt(runners)
-        if result == "r":
+        flows = self._start_flows(runners)
+        min_started_at = datetime.utcnow()
+        for s in flows:
+            if s.started_at < min_started_at:
+                min_started_at = s.started_at
+        try:
+            finder = FlowFinder(self.targets, min_started_at, len(self.targets) * 300)
+            while not finder.has_found_all():
+                finder.wait_until_refresh()
+                finder.refresh()
+            for f in finder.found:
+                flows.append(f)
+            self.passed = wait_for_status(flows, "Succeeded")
+        except TimeoutError:
             self.passed = False
-        else:
-            self.passed = result
-        return result
+
+    def _start_flows(self, runners):
+        runs = []
+        for name in self.triggers:
+            run = runners[name].run()
+            run.refresh()
+            print(run)
+            runs.append(run)
+        return runs
 
 
 class Test:
@@ -155,9 +132,7 @@ class Test:
         self.setup()
         random.shuffle(self.cases)
         for case in self.cases:
-            result = case.run(self.runners)
-            if result == "r":
-                return result
+            case.run(self.runners)
 
     def _format_case_name(self, case_name):
         while len(case_name) < 55:

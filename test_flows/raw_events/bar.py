@@ -1,7 +1,7 @@
 from metaflow import FlowSpec, trigger_on, step
 
 
-@trigger_on(event="my-other-event")
+# @trigger_on(event="my-other-event")
 class BarFlow(FlowSpec):
     @step
     def start(self):
