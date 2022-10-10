@@ -12,14 +12,15 @@ from .cluster import FlowFinder, FlowRunner
 
 
 def wait_for_status(flows, desired):
-    final_statuses = ["Succeeded", "Failed", "Error"].remove(desired)
+    final_statuses = ["Succeeded", "Failed", "Error"]
+    final_statuses.remove(desired)
     finalists = []
     skipped = []
     while len(finalists) + len(skipped) < len(flows):
         for flow in flows:
             if flow.id in finalists:
                 continue
-            flow.wait_until_refresh()
+            flow.wait_and_refresh()
             if flow.status == desired:
                 finalists.append(flow.id)
             elif flow.status in final_statuses:
@@ -82,32 +83,36 @@ class TestCase:
         self.passed = False
 
     def run(self, runners):
-        header = ""
-        while len(header) < len(f"Case: {self.name}"):
-            header = f"{header}-"
-        print(f"\n\nCase: {self.name}\n{header}", flush=True)
+        header = f"{self.name}"
+        while len(header) < 75:
+            header = f"{header}."
+        print(header, end="", flush=True)
         flows = self._start_flows(runners)
         min_started_at = datetime.utcnow()
         for s in flows:
             if s.started_at < min_started_at:
                 min_started_at = s.started_at
         try:
-            finder = FlowFinder(self.targets, min_started_at, len(self.targets) * 300)
+            finder = FlowFinder(
+                self.targets, min_started_at, (int(len(self.targets) / 2) + 1) * 75
+            )
             while not finder.has_found_all():
-                finder.wait_until_refresh()
-                finder.refresh()
+                finder.wait_and_refresh()
             for f in finder.found:
                 flows.append(f)
             self.passed = wait_for_status(flows, "Succeeded")
         except TimeoutError:
             self.passed = False
+        if self.passed:
+            print("PASS", flush=True)
+        else:
+            print("FAIL", flush=True)
 
     def _start_flows(self, runners):
         runs = []
         for name in self.triggers:
             run = runners[name].run()
-            run.refresh()
-            print(run)
+            run.wait_and_refresh()
             runs.append(run)
         return runs
 
@@ -144,10 +149,4 @@ class Test:
         for case in self.cases:
             if case.passed:
                 passed += 1
-            if verbose:
-                formatted = self._format_case_name(case.name)
-                if case.passed:
-                    print(f"{formatted}PASS")
-                else:
-                    print(f"{formatted}FAIL")
         return passed == len(self.cases)

@@ -6,7 +6,7 @@ from time import sleep
 
 from kubernetes import client
 
-REFRESH_INTERVAL = 10
+REFRESH_INTERVAL = 5
 
 
 class Refreshable:
@@ -23,15 +23,15 @@ class Refreshable:
             else:
                 return 0
 
-    def wait_until_refresh(self):
+    def wait_and_refresh(self):
         remaining = self.remaining_time()
         if remaining == 0:
-            return
+            self.refresh()
         else:
             sleep(remaining + 0.5)
 
     def refresh(self):
-        if self.remaining_time() == 0:
+        if self.remaining_time() <= 0:
             try:
                 self.on_refresh()
             finally:
@@ -94,6 +94,7 @@ class FlowFinder(Refreshable):
         for name in names:
             updated = re.sub("_ns", "", name)
             updated = re.sub("\.py", "", updated)
+            updated = re.sub("_", "", updated)
             self.patterns[name] = f".*{updated}.*"
         self.min_started_at = started_at
         self._deadline = datetime.utcnow() + timedelta(seconds=deadline)
