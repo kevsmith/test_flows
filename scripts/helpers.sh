@@ -51,11 +51,3 @@ argo_delete() {
 alias acr="argo_create"
 alias atr="argo_trigger"
 alias ade="argo_delete"
-
-
-load_test_flows() {
-    for f in $(ls test_flows/{foo,bar,baz,goodbye,hello,rip,three_way}.py)
-    do
-        python ${f} argo-workflows create
-    done
-}
