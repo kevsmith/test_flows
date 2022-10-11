@@ -1,3 +1,5 @@
 env
 __pycache__
 **/*.pyc
+**/__pycache__
+test_flows/test_flows/fan_out/flow*.py

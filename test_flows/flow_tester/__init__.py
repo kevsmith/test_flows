@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 import glob
-import subprocess
 import random
 import re
 from os import path
@@ -53,6 +52,7 @@ def pluralize(things, singular, plural):
 
 
 def run_tests(tests):
+    test_count = len(tests)
     for t in tests:
         result = "r"
         while result == "r":
@@ -61,7 +61,7 @@ def run_tests(tests):
     passed = True
 
     for t in tests:
-        if not t.report(verbose=True):
+        if not t.report():
             passed = False
 
     if not passed:
@@ -84,7 +84,7 @@ class TestCase:
 
     def run(self, runners):
         header = f"{self.name}"
-        while len(header) < 75:
+        while len(header) < 97:
             header = f"{header}."
         print(header, end="", flush=True)
         flows = self._start_flows(runners)
@@ -135,7 +135,8 @@ class Test:
 
     def run(self):
         self.setup()
-        random.shuffle(self.cases)
+        for i in range(1, len(self.cases)):
+            random.shuffle(self.cases)
         for case in self.cases:
             case.run(self.runners)
 
@@ -144,7 +145,7 @@ class Test:
             case_name = f"{case_name}."
         return case_name
 
-    def report(self, verbose=False):
+    def report(self):
         passed = 0
         for case in self.cases:
             if case.passed:

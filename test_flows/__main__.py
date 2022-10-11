@@ -2,7 +2,7 @@ from datetime import datetime
 import random
 import sys
 
-from test_flows import lifecycle, parameters, raw_events
+from test_flows import lifecycle, parameters, raw_events, fan_out
 from test_flows.flow_tester import run_tests
 
 from kubernetes import config
@@ -14,6 +14,7 @@ def main(args):
     all_tests = []
     if len(args) == 0:
         args = ["lifecycle", "parameters", "raw_events"]
+        args.sort()
     seen = []
     for arg in args:
         if arg in seen:
@@ -31,8 +32,18 @@ def main(args):
             all_tests = raw_events.tests(tests=all_tests)
             print(f"Added {arg} tests")
             seen.append(arg)
+        elif arg == "fan_out":
+            all_tests = fan_out.tests(tests=all_tests)
+            print(f"Added {arg} tests")
+            seen.append(arg)
+
     print("")
-    random.shuffle(all_tests)
+    if len(all_tests) < 2:
+        random.shuffle(all_tests)
+    else:
+        for i in range(random.randint(1, len(all_tests))):
+            random.shuffle(all_tests)
+
     run_tests(all_tests)
 
 

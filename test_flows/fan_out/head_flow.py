@@ -1,15 +1,15 @@
 from metaflow import FlowSpec, step
 
 
-class HelloFlow(FlowSpec):
+class HeadFlow(FlowSpec):
     @step
     def start(self):
         self.next(self.end)
 
     @step
     def end(self):
-        print("Hello")
+        print("HeadFlow done")
 
 
 if __name__ == "__main__":
-    HelloFlow()
+    HeadFlow()

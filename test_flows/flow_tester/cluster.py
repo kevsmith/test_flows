@@ -6,7 +6,7 @@ from time import sleep
 
 from kubernetes import client
 
-REFRESH_INTERVAL = 5
+REFRESH_INTERVAL = 15
 
 
 class Refreshable:
@@ -45,7 +45,6 @@ class FlowRun(Refreshable):
     def __init__(self, id, data=None):
         super().__init__()
         self.id = id
-        self.api = client.CustomObjectsApi()
         self.status = None
         self.started_at = None
         self.finished_at = None
@@ -53,6 +52,9 @@ class FlowRun(Refreshable):
             self._populate(data)
         else:
             self.refresh()
+
+    def api(self):
+        return client.CustomObjectsApi()
 
     def __str__(self):
         started_at = datetime.strftime(self.started_at, "%Y-%m-%dT%H:%M:%SZ")
@@ -62,7 +64,7 @@ class FlowRun(Refreshable):
         if self.status in ["Succeeded", "Failed", "Error"]:
             if self.started_at is not None and self.finished_at is not None:
                 return
-        result = self.api.get_namespaced_custom_object(
+        result = self.api().get_namespaced_custom_object(
             "argoproj.io", "v1alpha1", "metaflow-jobs", "workflows", self.id
         )
         self._populate(result)
@@ -98,8 +100,10 @@ class FlowFinder(Refreshable):
             self.patterns[name] = f".*{updated}.*"
         self.min_started_at = started_at
         self._deadline = datetime.utcnow() + timedelta(seconds=deadline)
-        self.api = client.CustomObjectsApi()
         self.found = []
+
+    def api(self):
+        return client.CustomObjectsApi()
 
     def _matches_name(self, candidate_name):
         for key in self.patterns.keys():
@@ -114,7 +118,7 @@ class FlowFinder(Refreshable):
     def on_refresh(self):
         if self._is_deadline_exceeded():
             raise TimeoutError("Flow discovery deadline exceeded")
-        result = self.api.list_namespaced_custom_object(
+        result = self.api().list_namespaced_custom_object(
             "argoproj.io", "v1alpha1", "metaflow-jobs", "workflows", limit=100
         )
         for item in result["items"]:

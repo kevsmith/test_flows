@@ -9,17 +9,17 @@ class ThreeWayFlow(FlowSpec):
 
     @step
     def foo(self):
-        send_event("my-event")
+        send_event("my.event")
         self.next(self.bar)
 
     @step
     def bar(self):
-        send_event("my-other-event")
+        send_event("my.other.event")
         self.next(self.end)
 
     @step
     def end(self):
-        send_event("my-other-other-event")
+        send_event("my.other.other.event")
         print("Done")
 
 

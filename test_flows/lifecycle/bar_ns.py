@@ -1,7 +1,8 @@
-from metaflow import FlowSpec, trigger_on, step
+from unicodedata import name
+from metaflow import FlowSpec, step, project
 
 
-@trigger_on(event="my.other.event")
+@project(name="flounder")
 class BarFlow(FlowSpec):
     @step
     def start(self):
@@ -9,7 +10,7 @@ class BarFlow(FlowSpec):
 
     @step
     def end(self):
-        print("Bar done")
+        print("BarFlow done")
 
 
 if __name__ == "__main__":

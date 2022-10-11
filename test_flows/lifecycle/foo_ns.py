@@ -1,7 +1,7 @@
-from metaflow import FlowSpec, trigger_on, step
+from metaflow import FlowSpec, step, project
 
 
-@trigger_on(event="my.event")
+@project(name="flounder")
 class FooFlow(FlowSpec):
     @step
     def start(self):
@@ -9,7 +9,7 @@ class FooFlow(FlowSpec):
 
     @step
     def end(self):
-        print("Foo done")
+        print("FooFlow done")
 
 
 if __name__ == "__main__":

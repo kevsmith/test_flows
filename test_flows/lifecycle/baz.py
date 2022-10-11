@@ -1,8 +1,7 @@
-from metaflow import FlowSpec, trigger_on, step
-from metaflow.parameters import Parameter
+from metaflow import FlowSpec, step, trigger_on
 
 
-@trigger_on(event="my.other.other.event")
+@trigger_on(flows=["FooFlow", "BarFlow"])
 class BazFlow(FlowSpec):
     @step
     def start(self):
@@ -10,7 +9,7 @@ class BazFlow(FlowSpec):
 
     @step
     def end(self):
-        print("Baz done")
+        print("BazFlow done")
 
 
 if __name__ == "__main__":
