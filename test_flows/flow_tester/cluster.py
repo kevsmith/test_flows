@@ -6,7 +6,7 @@ from time import sleep
 
 from kubernetes import client
 
-REFRESH_INTERVAL = 15
+REFRESH_INTERVAL = 5
 
 
 class Refreshable:

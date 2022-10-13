@@ -2,16 +2,16 @@ from metaflow import FlowSpec, step
 from metaflow.plugins import send_event
 
 
-class HelloFlow(FlowSpec):
+class BarFlow(FlowSpec):
     @step
     def start(self):
-        send_event("woot", event_data={"person": "Wadzinski"})
+        send_event("bar.is.running", event_data={"score": 100})
         self.next(self.end)
 
     @step
     def end(self):
-        print("Hello")
+        print("BarFlow done")
 
 
 if __name__ == "__main__":
-    HelloFlow()
+    BarFlow()

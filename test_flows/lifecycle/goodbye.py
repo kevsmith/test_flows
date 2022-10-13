@@ -1,7 +1,7 @@
-from metaflow import FlowSpec, step, trigger_on
+from metaflow import FlowSpec, step, trigger_on_finish
 
 
-@trigger_on(flow="HelloFlow")
+@trigger_on_finish(flow="HelloFlow")
 class GoodbyeFlow(FlowSpec):
     @step
     def start(self):

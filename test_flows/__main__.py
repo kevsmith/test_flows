@@ -2,7 +2,7 @@ from datetime import datetime
 import random
 import sys
 
-from test_flows import lifecycle, parameters, raw_events, fan_out
+from test_flows import lifecycle, parameters, raw_events, fan_out, hybrid
 from test_flows.flow_tester import run_tests
 
 from kubernetes import config
@@ -36,6 +36,8 @@ def main(args):
             all_tests = fan_out.tests(tests=all_tests)
             print(f"Added {arg} tests")
             seen.append(arg)
+        elif arg == "hybrid":
+            all_tests = hybrid.tests(tests=all_tests)
 
     print("")
     if len(all_tests) < 2:
