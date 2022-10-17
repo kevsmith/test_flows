@@ -12,13 +12,11 @@ def tests(tests=[]):
     if rc != 0:
         raise RuntimeError(f"Failed to generate fan out flows: {rc}")
     rs = runners_from_files(__file__)
-
-    dependents = list(rs.keys())
+    dependents = [r.name for r in rs]
     dependents.remove("head_flow.py")
-    runners = list(rs.values())
-    tests.append(Test(*runners))
-    tests[-1].add_case(
+    t = Test(*rs)
+    t.add_case(
         f"[{__package__}] trigger {FAN_OUT}-wide fan out", "head_flow.py", dependents
     )
-
+    tests.append(t)
     return tests

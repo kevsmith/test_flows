@@ -9,6 +9,8 @@ from kubernetes import client
 
 from .cluster import FlowFinder, FlowRunner
 
+VERBOSE_LOG = False
+
 
 def wait_for_status(flows, desired):
     final_statuses = ["Succeeded", "Failed", "Error"]
@@ -36,11 +38,11 @@ def flow_path(caller, flow):
 
 def runners_from_files(caller):
     prefix = path.dirname(caller)
-    runners = {}
+    runners = []
     files = sorted([f for f in glob.glob(f"{prefix}/*.py") if f.find("__") == -1])
     for f in files:
         runner = FlowRunner(flow_path(caller, f))
-        runners[runner.name] = runner
+        runners.append(runner)
     return runners
 
 
@@ -126,6 +128,8 @@ class Test:
 
     def setup(self):
         for name in self.runners.keys():
+            if VERBOSE_LOG:
+                print(f"Setting up {name}")
             self.runners[name].setup()
 
     def add_case(self, name, trigger_flow, targets, should_run=True, succeeded=True):

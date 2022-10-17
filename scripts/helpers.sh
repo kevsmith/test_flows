@@ -74,7 +74,7 @@ argo_clean_workflows() {
         for workflow in $(echo ${all_workflows} | awk '{print $1}')
         do
             printf "Deleting %s workflow\n" ${workflow}
-            kubectl -n metaflow-jobs delete workflow ${workflow}
+            kubectl -n metaflow-jobs delete --ignore-not-found=false workflow ${workflow}
         done
     else
         while [ "${1}" != "" ]
@@ -82,7 +82,7 @@ argo_clean_workflows() {
             for workflow in $(echo ${all_workflows} | grep "${1}" | awk '{print $1}')
             do
                 printf "Deleting %s workflow\n" ${workflow}
-                kubectl -n metaflow-jobs delete workflow ${workflow}
+                kubectl -n metaflow-jobs delete --ignore-not-found=false workflow ${workflow}
             done
             shift
         done

@@ -6,7 +6,7 @@ from time import sleep
 
 from kubernetes import client
 
-REFRESH_INTERVAL = 5
+REFRESH_INTERVAL = 2
 
 
 class Refreshable:
@@ -26,11 +26,14 @@ class Refreshable:
     def wait_and_refresh(self):
         remaining = self.remaining_time()
         if remaining == 0:
-            self.refresh()
+            self._refresh()
         else:
             sleep(remaining + 0.5)
 
     def refresh(self):
+        self.wait_and_refresh()
+
+    def _refresh(self):
         if self.remaining_time() <= 0:
             try:
                 self.on_refresh()
