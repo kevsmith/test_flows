@@ -1,7 +1,7 @@
 from metaflow import FlowSpec, step, trigger_on_finish
 
 
-@trigger_on_finish(flows=["FooFlow", "BarFlow"], reset_after="11:59PM")
+@trigger_on_finish(flows=["FooFlow", "BarFlow"])
 class BazFlow(FlowSpec):
     @step
     def start(self):

@@ -26,12 +26,12 @@ spec:
       limits:
         memory: "8Gi"
         cpu: 2
-    env:
-      - name: NATS_TOKEN
-        valueFrom:
-          secretKeyRef:
-            name: nats-user-token-9l27z
-            key: token
+    # env:
+    #   - name: NATS_TOKEN
+    #     valueFrom:
+    #       secretKeyRef:
+    #         name: nats-user-token-9l27z
+    #         key: token
     # volumeMounts:
     #   - name: "nats-user-token"
     #     mountPath: "/var/run/secrets/nats.io"

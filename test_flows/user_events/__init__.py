@@ -4,16 +4,16 @@ from test_flows.flow_tester import Test, runners_from_files, run_tests
 def tests(tests=[]):
     rs = runners_from_files(__file__)
 
-    t = Test(*rs)
+    t = Test(*rs, prefix=__package__)
     t.add_case(
-        f"[{__package__}] triggers multiple flows using user events",
+        "triggers multiple flows using user events",
         "three_way.py",
-        ["foo.py", "bar.py", "baz.py"],
+        ["foo.py", "bar.py", "quux.py"],
     )
     t.add_case(
-        f"[{__package__}] (@project) triggers multiple flows using user events",
+        "(@project) triggers multiple flows using user events",
         "three_way_ns.py",
-        ["foo_ns.py", "baz_ns.py"],
+        ["foo_ns.py", "quux_ns.py"],
     )
     tests.append(t)
     return tests

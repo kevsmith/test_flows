@@ -4,25 +4,25 @@ from test_flows.flow_tester import Test, runners_from_files
 def tests(tests=[]):
     rs = runners_from_files(__file__)
 
-    t = Test(*rs)
+    t = Test(*rs, prefix=__package__)
 
     t.add_case(
-        f"[{__package__}] triggers on user event & passes param",
+        "triggers on user event & passes param",
         "short.py",
         "parameters.py",
     )
     t.add_case(
-        f"[{__package__}] (@project) triggers on user event & passes param",
+        "(@project) triggers on user event & passes param",
         "short_ns.py",
         "parameters_ns.py",
     )
     t.add_case(
-        f"[{__package__}] triggers on user events from multiple flows & passes params",
+        "triggers on user events from multiple flows & passes params",
         ["given_name.py", "surname.py"],
         "full_name.py",
     )
     t.add_case(
-        f"[{__package__}] (@project) triggers on user events from multiple flows & passes params",
+        "(@project) triggers on user events from multiple flows & passes params",
         ["given_name_ns.py", "surname_ns.py"],
         "full_name_ns.py",
     )

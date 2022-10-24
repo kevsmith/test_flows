@@ -4,9 +4,11 @@ from os import path
 import subprocess
 from time import sleep
 
+import requests
 from kubernetes import client
+from .util import class_name_from_file
 
-REFRESH_INTERVAL = 2
+REFRESH_INTERVAL = 1
 
 
 class Refreshable:
@@ -25,32 +27,33 @@ class Refreshable:
 
     def wait_and_refresh(self):
         remaining = self.remaining_time()
-        if remaining == 0:
-            self._refresh()
-        else:
-            sleep(remaining + 0.5)
+        while remaining > 0:
+            sleep(remaining * 0.5)
+            remaining = self.remaining_time()
+        self._refresh()
 
     def refresh(self):
         self.wait_and_refresh()
 
     def _refresh(self):
-        if self.remaining_time() <= 0:
-            try:
-                self.on_refresh()
-            finally:
-                self._last_refresh = datetime.utcnow()
+        try:
+            self.on_refresh()
+        finally:
+            self._last_refresh = datetime.utcnow()
 
     def on_refresh(self):
         pass
 
 
 class FlowRun(Refreshable):
-    def __init__(self, id, data=None):
+    def __init__(self, id, data=None, api_key=""):
         super().__init__()
         self.id = id
+        self.class_name = class_name_from_file(id)
         self.status = None
         self.started_at = None
         self.finished_at = None
+        self.api_key = api_key
         if data is not None:
             self._populate(data)
         else:
@@ -74,7 +77,7 @@ class FlowRun(Refreshable):
 
     def _populate(self, me):
         if "status" not in me:
-            print(me.keys())
+            return
         else:
             my_status = me["status"]
             self.status = my_status["phase"]
@@ -90,6 +93,10 @@ class FlowRun(Refreshable):
                     self.finished_at = datetime.strptime(
                         my_status["finishedAt"], "%Y-%m-%dT%H:%M:%SZ"
                     )
+
+
+class SearchTimeoutError(Exception):
+    pass
 
 
 class FlowFinder(Refreshable):
@@ -120,7 +127,9 @@ class FlowFinder(Refreshable):
 
     def on_refresh(self):
         if self._is_deadline_exceeded():
-            raise TimeoutError("Flow discovery deadline exceeded")
+            e = SearchTimeoutError("Flow discovery deadline exceeded")
+            e.missing = self.patterns.keys()
+            raise e
         result = self.api().list_namespaced_custom_object(
             "argoproj.io", "v1alpha1", "metaflow-jobs", "workflows", limit=100
         )
@@ -143,11 +152,13 @@ class FlowFinder(Refreshable):
 
 
 class FlowRunner:
-    def __init__(self, flow):
+    def __init__(self, flow, api_key=""):
         self.name = path.basename(flow)
+        self.class_name = class_name_from_file(self.name)
         self.flow = flow
         self.creator = Command(["python", flow, "--quiet", "argo-workflows", "create"])
         self.starter = Command(["python", flow, "argo-workflows", "trigger"])
+        self.api_key = api_key
 
     def setup(self):
         self.creator.must()
@@ -158,7 +169,7 @@ class FlowRunner:
         indices = match.span()
         match_text = output[indices[0] : indices[1]]
         id = match_text.split(" ")[-1].replace("argo-", "")
-        return FlowRun(id)
+        return FlowRun(id, api_key=self.api_key)
 
 
 class Command:
