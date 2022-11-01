@@ -1,11 +1,13 @@
 from datetime import datetime, timedelta
 import re
 from os import path
+import random
 import subprocess
 from time import sleep
 
 import requests
 from kubernetes import client
+from kubernetes.client.exceptions import ApiException
 from .util import class_name_from_file
 
 REFRESH_INTERVAL = 1
