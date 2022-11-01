@@ -1,7 +1,7 @@
 from metaflow import FlowSpec, step, project
 
 
-@project(name="flounder")
+@project(name="secret_squirrel")
 class FooFlow(FlowSpec):
     @step
     def start(self):

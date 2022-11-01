@@ -2,7 +2,7 @@ from unicodedata import name
 from metaflow import FlowSpec, step, project
 
 
-@project(name="flounder")
+@project(name="secret_squirrel")
 class BarFlow(FlowSpec):
     @step
     def start(self):
