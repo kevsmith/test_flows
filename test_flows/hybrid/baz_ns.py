@@ -1,9 +1,8 @@
 from metaflow import FlowSpec, step, trigger_on, project
 from metaflow.parameters import Parameter
 
-
-@project(name="coelacanth")
 @trigger_on(flow="FooFlow", event="bar.is.running")
+@project(name="coelacanth")
 class BazFlow(FlowSpec):
     score = Parameter(name="score", required=True, type=int)
 

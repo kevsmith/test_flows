@@ -1,8 +1,8 @@
 from metaflow import FlowSpec, step, trigger_on_finish, project
 
 
-@project(name="secret_squirrel")
 @trigger_on_finish(flows=["FooFlow", "BarFlow"])
+@project(name="secret_squirrel")
 class BazFlow(FlowSpec):
     @step
     def start(self):

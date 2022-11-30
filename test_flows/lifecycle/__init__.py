@@ -26,5 +26,11 @@ def tests(tests=[]):
         "baz_ns.py",
     )
 
+    t.add_case(
+        "triggers on namespaced flow finish signal from outside namespace",
+        "hello_ns.py",
+        "snooper.py",
+    )
+
     tests.append(t)
     return tests

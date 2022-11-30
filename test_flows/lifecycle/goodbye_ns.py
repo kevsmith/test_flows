@@ -1,8 +1,9 @@
 from metaflow import FlowSpec, step, trigger_on, project
 
 
-@project(name="kevsmith_test")
+
 @trigger_on(flow="HelloFlow")
+@project(name="kevsmith_test")
 class GoodbyeFlow(FlowSpec):
     @step
     def start(self):

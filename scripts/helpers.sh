@@ -81,9 +81,19 @@ argo_test() {
     python test_flows ${1}
 }
 
+burn_in() {
+    if [ -d ./scripts ]; then
+        scripts/burn_in.sh $@
+    elif [ -f burn_in.sh ]; then
+        ./burn_in.sh $@
+    else
+        echo "Can't locate burn_in.sh!" 1>&2
+        exit 1
+    fi
+}
+
 alias acr="argo_create"
 alias atr="argo_trigger"
 alias ade="argo_delete"
 alias argo_clean="argo_clean_sensors;argo_clean_templates;argo_clean_workflows"
 alias acl="argo_clean"
-alias burn_in="$(cd $(dirname ${0}) && pwd)/burn_in.sh $@"
