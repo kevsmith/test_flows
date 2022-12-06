@@ -13,7 +13,7 @@ def tests(tests=[]):
     t.add_case(
         "(@project) triggers multiple flows using user events",
         "three_way_ns.py",
-        ["foo_ns.py", "quux_ns.py"],
+        ["foo_ns.py", "bar_ns.py", "quux_ns.py"],
     )
     tests.append(t)
     return tests

@@ -25,12 +25,12 @@ class Refreshable:
             if td < REFRESH_INTERVAL:
                 return REFRESH_INTERVAL - td
             else:
-                return 0
+                return 0.0
 
     def wait_and_refresh(self):
         remaining = self.remaining_time()
         while remaining > 0:
-            sleep(remaining * 0.5)
+            sleep(remaining * 0.25)
             remaining = self.remaining_time()
         self._refresh()
 
@@ -106,9 +106,7 @@ class FlowFinder(Refreshable):
         super().__init__()
         self.patterns = {}
         for name in names:
-            updated = re.sub("_ns", "", name)
-            updated = re.sub("\.py", "", updated)
-            updated = re.sub("_", "", updated)
+            updated = re.sub("(_ns\.py|\.py)$", "", name)
             self.patterns[name] = f".*{updated}.*"
         self.min_started_at = started_at
         self._deadline = datetime.utcnow() + timedelta(seconds=deadline)
@@ -133,7 +131,7 @@ class FlowFinder(Refreshable):
             e.missing = self.patterns.keys()
             raise e
         result = self.api().list_namespaced_custom_object(
-            "argoproj.io", "v1alpha1", "metaflow-jobs", "workflows", limit=100
+            "argoproj.io", "v1alpha1", "metaflow-jobs", "workflows", limit=200
         )
         for item in result["items"]:
             if "metadata" in item and "status" in item:

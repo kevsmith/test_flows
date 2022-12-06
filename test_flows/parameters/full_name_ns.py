@@ -1,7 +1,6 @@
 from metaflow import FlowSpec, step, trigger_on, project
 from metaflow.parameters import Parameter
 
-@project(name="kipper")
 @trigger_on(
     events=["given_name", "surname"],
     mappings={
@@ -9,6 +8,7 @@ from metaflow.parameters import Parameter
         "surname": {"last_name": "surname"},
     },
 )
+@project(name="kipper")
 class FullNameFlow(FlowSpec):
 
     first_name = Parameter(name="first_name", required=True, type=str)

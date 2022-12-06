@@ -123,7 +123,7 @@ class TestCase:
         min_started_at = datetime.utcnow()
         missing = []
         for s in flows:
-            if s.started_at < min_started_at:
+            if s and s.started_at < min_started_at:
                 min_started_at = s.started_at
         try:
             finder = FlowFinder(self.targets, min_started_at, len(self.targets) * 120)

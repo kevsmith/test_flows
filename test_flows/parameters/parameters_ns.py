@@ -2,8 +2,8 @@ from metaflow import FlowSpec, step, trigger_on, project
 from metaflow.parameters import Parameter
 
 
-@project(name="wobbly")
 @trigger_on(event="run-me")
+@project(name="wobbly")
 class ParametersFlow(FlowSpec):
 
     person = Parameter(name="person", required=True, type=str)

@@ -20,7 +20,7 @@ class ThreeWayFlow(FlowSpec):
 
     @step
     def end(self):
-        send_event("my-other-other-event")
+        send_event("my-other.other-event")
         print("Done")
 
 

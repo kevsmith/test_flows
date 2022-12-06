@@ -1,8 +1,8 @@
 from metaflow import FlowSpec, trigger_on, step, project
 
 
-@project(name="foobly_foo")
 @trigger_on(event="my-other-other-event")
+@project(name="foobly_foo")
 class BazFlow(FlowSpec):
     @step
     def start(self):
