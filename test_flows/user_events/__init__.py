@@ -10,10 +10,5 @@ def tests(tests=[]):
         "three_way.py",
         ["a.py", "b.py", "d.py"],
     )
-    t.add_case(
-        "(@project) triggers multiple flows using user events",
-        "three_way_ns.py",
-        ["a_ns.py", "b_ns.py", "d_ns.py"],
-    )
     tests.append(t)
     return tests
