@@ -1,16 +1,17 @@
 from metaflow import FlowSpec, trigger_on, step
+from metaflow.parameters import Parameter
 
 
-@trigger_on(event="my.other.event")
-class BarFlow(FlowSpec):
+@trigger_on(event="my.other.other.event")
+class CFlow(FlowSpec):
     @step
     def start(self):
         self.next(self.end)
 
     @step
     def end(self):
-        print("Bar done")
+        print("C done")
 
 
 if __name__ == "__main__":
-    BarFlow()
+    CFlow()

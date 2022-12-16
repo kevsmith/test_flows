@@ -1,16 +1,16 @@
 from metaflow import FlowSpec, trigger_on, step
 
 
-@trigger_on(event="my.other.other.event")
-class QuuxFlow(FlowSpec):
+@trigger_on(event="my.event")
+class AFlow(FlowSpec):
     @step
     def start(self):
         self.next(self.end)
 
     @step
     def end(self):
-        print("Baz done")
+        print("A done")
 
 
 if __name__ == "__main__":
-    QuuxFlow()
+    AFlow()
