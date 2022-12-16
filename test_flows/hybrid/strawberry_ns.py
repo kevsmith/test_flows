@@ -1,9 +1,10 @@
-from metaflow import FlowSpec, step, trigger_on
+from metaflow import FlowSpec, step, trigger_on, project
 from metaflow.parameters import Parameter
 
 
-@trigger_on(flow="FooFlow", event="bar.is.running")
-class BazFlow(FlowSpec):
+@trigger_on(flow="AppleFlow", event="banana.is.running")
+@project(name="coelacanth")
+class StrawberryFlow(FlowSpec):
     score = Parameter(name="score", required=True, type=int)
 
     @step
@@ -14,8 +15,8 @@ class BazFlow(FlowSpec):
 
     @step
     def end(self):
-        print("BazFlow done")
+        print("StrawberryFlow done")
 
 
 if __name__ == "__main__":
-    BazFlow()
+    StrawberryFlow()

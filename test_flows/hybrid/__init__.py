@@ -10,10 +10,10 @@ def tests(tests=[]):
         ["foo.py", "bar.py"],
         "baz.py",
     )
-    t.add_case(
-        "(@project) triggers on lifecycle and user events and passes param",
-        ["foo_ns.py", "bar_ns.py"],
-        "baz_ns.py",
-    )
+    # t.add_case(
+    #     "(@project) triggers on lifecycle and user events and passes param",
+    #     ["foo_ns.py", "bar_ns.py"],
+    #     "baz_ns.py",
+    # )
     tests.append(t)
     return tests
