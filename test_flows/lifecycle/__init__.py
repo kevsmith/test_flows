@@ -6,12 +6,16 @@ def tests(tests=[]):
 
     t = Test(*rs, prefix=__package__)
 
-    t.add_case("triggers on success lifecycle event", "hello.py", "goodbye.py")
+    t.add_case(
+        "triggers on success lifecycle event",
+        "hello.py",
+        ["goodbye.py", "faretheewell.py"],
+    )
 
     t.add_case(
         "(@project) triggers on success lifecycle event",
         "hello_ns.py",
-        "goodbye_ns.py",
+        ["goodbye_ns.py", "faretheewell_ns.py"],
     )
 
     t.add_case(
