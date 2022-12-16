@@ -45,6 +45,7 @@ def wait_for_status(flows, desired):
             if flow.status == desired:
                 finalists.append(flow.id)
             elif flow.status in final_statuses:
+                print(f"Skipping {flow.id}")
                 skipped.append(flow.id)
     return len(finalists) == len(flows)
 
@@ -94,11 +95,10 @@ def run_tests(tests):
 
 def setup_runner(runner):
     sleep(random.random() * 2)
-    runner.setup()
-
+    runner.setup(None)
 
 def start_runner(runner):
-    run = runner.run()
+    run = runner[0].run(runner[1])
     run.wait_and_refresh()
     return run
 
@@ -126,7 +126,7 @@ class TestCase:
             if s and s.started_at < min_started_at:
                 min_started_at = s.started_at
         try:
-            finder = FlowFinder(self.targets, min_started_at, len(self.targets) * 120)
+            finder = FlowFinder(self.targets, min_started_at, len(self.targets) * 150)
             while not finder.has_found_all():
                 finder.wait_and_refresh()
             flows = flows + finder.found
@@ -149,7 +149,18 @@ class TestCase:
                 print(f"Missing workflows: {', '.join(missing)}")
 
     def _start_flows(self, runners):
-        pending = [runners[name] for name in self.triggers]
+        pending = []
+        for target in self.targets:
+            if type(target) == tuple:
+                runner = runners[target[0]]
+                runner.setup(target[1])
+        for trigger in self.triggers:
+            if type(trigger) == tuple:
+                runner = runners[trigger[0]]
+                runner.setup(trigger[1])
+                pending.append((runner, trigger[1]))
+            else:
+                pending.append((runners[trigger], None))
         return [start_runner(runner) for runner in pending]
 
     def _req(self, url):

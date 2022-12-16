@@ -106,8 +106,15 @@ class FlowFinder(Refreshable):
         super().__init__()
         self.patterns = {}
         for name in names:
-            updated = re.sub("(_ns\.py|\.py)$", "", name)
-            self.patterns[name] = f".*{updated}.*"
+            pattern = ""
+            updated = re.sub("_ns\.py$", "", name)
+            if updated != name:
+                pattern = ".*"
+            else:
+                pattern = "^"
+                updated = re.sub("\.py$", "", name)
+            updated = updated.replace("_", "")
+            self.patterns[name] = f"{pattern}{updated}.*"
         self.min_started_at = started_at
         self._deadline = datetime.utcnow() + timedelta(seconds=deadline)
         self.found = []
@@ -134,15 +141,15 @@ class FlowFinder(Refreshable):
             "argoproj.io", "v1alpha1", "metaflow-jobs", "workflows", limit=200
         )
         for item in result["items"]:
+            started_at = datetime.strptime(
+                item["status"]["startedAt"], "%Y-%m-%dT%H:%M:%SZ"
+            )
+            if started_at <= self.min_started_at:
+                continue          
             if "metadata" in item and "status" in item:
                 id = item["metadata"]["name"]
                 (matches, found_name) = self._matches_name(id)
-                if not matches:
-                    continue
-                started_at = datetime.strptime(
-                    item["status"]["startedAt"], "%Y-%m-%dT%H:%M:%SZ"
-                )
-                if started_at > self.min_started_at:
+                if matches:
                     run = FlowRun(id, data=item)
                     self.found.append(run)
                     self.patterns.pop(found_name, None)
@@ -160,11 +167,11 @@ class FlowRunner:
         self.starter = Command(["python", flow, "argo-workflows", "trigger"])
         self.api_key = api_key
 
-    def setup(self):
-        self.creator.must()
+    def setup(self, env):
+        self.creator.must(env)
 
-    def run(self):
-        output = self.starter.must()
+    def run(self, env):
+        output = self.starter.must(env)
         match = re.search("run-id argo-[a-z0-9\-\.]+", output)
         indices = match.span()
         match_text = output[indices[0] : indices[1]]
@@ -179,18 +186,28 @@ class Command:
         else:
             self.commands = cmd
 
-    def execute(self, check=False):
-        result = subprocess.run(
-            self.commands,
-            text=True,
-            check=check,
-            stderr=subprocess.STDOUT,
-            stdout=subprocess.PIPE,
-        )
+    def execute(self, env, check=False):
+        if env is None:
+            result = subprocess.run(
+                self.commands,
+                text=True,
+                check=check,
+                stderr=subprocess.STDOUT,
+                stdout=subprocess.PIPE,
+            )
+        else:
+            result = subprocess.run(
+                self.commands,
+                text=True,
+                check=check,
+                stderr=subprocess.STDOUT,
+                stdout=subprocess.PIPE,
+                env=env,
+            )
         return result
 
-    def must(self):
-        result = self.execute(check=True)
+    def must(self, env):
+        result = self.execute(env, check=True)
         return result.stdout.strip()
 
     def should(self):

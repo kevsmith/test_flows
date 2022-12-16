@@ -3,7 +3,7 @@ kind: NatsCluster
 metadata:
   name: events-nats-cluster
 spec:
-  size: 3
+  size: 1
 pod:
   enableConfigReload: true
 auth:

@@ -1,4 +1,4 @@
-from test_flows.flow_tester import Test, runners_from_files, run_tests
+from test_flows.flow_tester import Test, runners_from_files
 
 
 def tests(tests=[]):

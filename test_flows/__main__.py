@@ -3,7 +3,7 @@ import random
 from re import VERBOSE
 import sys
 
-from test_flows import lifecycle, parameters, user_events, fan_out, hybrid
+from test_flows import lifecycle, parameters, user_events, hybrid, reset
 from test_flows.flow_tester import run_tests
 
 from kubernetes import config
@@ -15,11 +15,11 @@ def print_help(name):
 
     Test set names
     --------------
+    hybrid
     lifecycle
     parameters
+    reset
     user_events
-    fan_out
-    hybrid
 
     Providing no test set name runs all of them
     """
@@ -36,7 +36,7 @@ def main(args):
     random.seed(t)
     all_tests = []
     if len(args) == 0:
-        args = ["li", "pa", "us", "fa", "hy"]
+        args = ["hy", "li", "pa", "re", "us"]
     seen = []
     for arg in args:
         if arg in seen:
@@ -52,8 +52,8 @@ def main(args):
         elif arg.startswith("us"):
             all_tests = user_events.tests(tests=all_tests)
             seen.append(arg)
-        elif arg.startswith("fa"):
-            all_tests = fan_out.tests(tests=all_tests)
+        elif arg.startswith("re"):
+            all_tests = reset.tests(tests=all_tests)
             seen.append(arg)
         elif arg.startswith("hy"):
             all_tests = hybrid.tests(tests=all_tests)
@@ -66,7 +66,7 @@ def main(args):
             sys.exit(1)
 
     print("")
-    if len(all_tests) < 2:
+    if len(all_tests) < 4:
         random.shuffle(all_tests)
     else:
         for i in range(random.randint(1, len(all_tests))):

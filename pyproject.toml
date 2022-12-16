@@ -8,14 +8,7 @@ license = "Apache2"
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
 kubernetes = "^24.2.0"
-PyYAML = "^6.0"
-taichi = "^1.1.2"
-metaflow = "^2.7.10"
-azure-storage-blob = "^12.14.1"
-azure-identity = "^1.11.0"
-google-cloud-storage = "^2.5.0"
-google-auth = "^2.13.0"
-nats-py = "^2.2.0"
+metaflow = { path = "../metaflow" }
 
 [tool.poetry.dev-dependencies]
 

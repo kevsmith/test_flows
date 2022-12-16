@@ -5,7 +5,12 @@ if [ -f env/config.json ]; then
 fi
 
 if [ -d ../metaflow ]; then
-    export PYTHONPATH=$PYTHONPATH:$(cd .. && pwd)/metaflow
+    if [ "" != "${FORCE_LOCAL_METAFLOW}" ]; then
+        export PYTHONPATH=$PYTHONPATH:$(cd .. && pwd)/metaflow
+    else
+        export PYTHONPATH=
+        echo "Not forcing use of $(cd .. && pwd)/metaflow"
+    fi
 fi
 
 flow() {
@@ -78,7 +83,7 @@ argo_clean_workflows() {
 }
 
 argo_test() {
-    python test_flows ${1}
+    python test_flows $@
 }
 
 burn_in() {
