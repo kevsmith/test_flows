@@ -2,7 +2,7 @@ from metaflow import FlowSpec, step, trigger_on
 from metaflow.parameters import Parameter
 
 
-@trigger_on(flow="AppleFlow", event="banana.is.running")
+@trigger_on(flows=["AppleFlow"], event="banana.is.running")
 class StrawberryFlow(FlowSpec):
     score = Parameter(name="score", required=True, type=int)
 

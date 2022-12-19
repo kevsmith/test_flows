@@ -1,7 +1,7 @@
 from metaflow import FlowSpec, trigger_on, step
 
 
-@trigger_on(event="my.other.other.event")
+@trigger_on(events=["my.other.other.event"])
 class DFlow(FlowSpec):
     @step
     def start(self):

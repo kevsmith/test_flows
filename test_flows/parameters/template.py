@@ -2,7 +2,7 @@ from metaflow import FlowSpec, step, trigger_on
 from metaflow.parameters import Parameter
 
 
-@trigger_on(event="build_message", mappings={"message": "m", "punctuation": "p"})
+@trigger_on(events=["build_message"], mappings={"message": "m", "punctuation": "p"})
 class TemplateFlow(FlowSpec):
 
     message = Parameter(name="message", required=True, type=str)

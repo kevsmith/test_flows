@@ -13,7 +13,7 @@ from .util import class_name_from_file
 REFRESH_INTERVAL = 1
 
 CREATE_EXPR = re.compile(
-    "Workflow ([a-z0-9\.]+) for flow [a-zA-Z0-9_]+ pushed to Argo Workflows successfully\.",
+    "Workflow ([a-z0-9\.]+|[a-z0-9]+) for flow [a-zA-Z0-9_]+ pushed to Argo Workflows successfully\.",
     re.M,
 )
 
@@ -143,16 +143,22 @@ class FlowFinder(Refreshable):
             e.missing = self.patterns.keys()
             raise e
         result = self.api().list_namespaced_custom_object(
-            "argoproj.io", "v1alpha1", "metaflow-jobs", "workflows", limit=200
+            "argoproj.io",
+            "v1alpha1",
+            "metaflow-jobs",
+            "workflows",
+            limit=20,
+            label_selector="workflows.argoproj.io/phase=Running",
         )
         for item in result["items"]:
             if "metadata" in item and "status" in item:
                 started_at = datetime.strptime(
                     item["status"]["startedAt"], "%Y-%m-%dT%H:%M:%SZ"
                 )
-                if started_at > self.min_started_at:
+                if started_at >= self.min_started_at:
                     id = item["metadata"]["name"]
                     (matches, found_name) = self._matches_name(id)
+                    print(f'Name {item["metadata"]["name"]} matches: {found_name}')
                     if matches:
                         run = FlowRun(id, data=item)
                         self.found.append(run)
@@ -167,7 +173,7 @@ class FlowRunner:
         self.name = path.basename(flow)
         self.class_name = class_name_from_file(self.name)
         self.flow = flow
-        self.creator = Command(["python", flow, "--quiet", "argo-workflows", "create"])
+        self.creator = Command(["python", flow, "argo-workflows", "create"])
         self.starter = Command(["python", flow, "argo-workflows", "trigger"])
         self.api_key = api_key
 

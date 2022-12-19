@@ -74,12 +74,10 @@ def pluralize(things, singular, plural):
         return plural
 
 
-def run_tests(tests):
+def run_tests(tests, reporter):
     test_count = len(tests)
     for t in tests:
-        result = "r"
-        while result == "r":
-            result = t.run()
+        t.run(reporter)
 
     passed = True
 
@@ -87,10 +85,7 @@ def run_tests(tests):
         if not t.report():
             passed = False
 
-    if not passed:
-        print("\nResult: FAIL\n\n")
-    else:
-        print("\nResult: PASS\n\n")
+    reporter.final_status(passed)
 
 
 def setup_runner(runner):
@@ -104,6 +99,70 @@ def start_runner(runner):
     return run
 
 
+class Reporter:
+    def start_test_case(self, name):
+        pass
+
+    def all_flows_started(self):
+        pass
+
+    def all_expected_flows_succeeded(self, status):
+        pass
+
+    def verify_metadata(self, status):
+        pass
+
+    def finish_test_case(self, status, reason=None):
+        pass
+
+    def final_status(self, status):
+        pass
+
+    def output(self, text):
+        print(text, end="", flush=True)
+
+    def output_line(self, text):
+        print(text, flush=True)
+
+
+class CLIReporter(Reporter):
+    def start_test_case(self, name):
+        header = name
+        while len(header) < 96:
+            header = f"{header}."
+        self.output(header)
+
+    def all_flows_started(self):
+        self.output(".")
+
+    def all_expected_flows_succeeded(self, status):
+        if status:
+            self.output(".")
+        else:
+            self.output("!")
+
+    def verify_metadata(self, status):
+        if status:
+            self.output(".")
+        else:
+            self.output("!")
+
+    def finish_test_case(self, status, reason=None):
+        if status:
+            self.output_line("PASS")
+        else:
+            self.output_line("FAIL")
+            if reason is not None:
+                self.output_line(f"Missing: {','.join(reason)}")
+
+    def final_status(self, status):
+        self.output_line("")
+        if status:
+            self.output_line("PASS")
+        else:
+            self.output_line("FAIL")
+
+
 class TestCase:
     def __init__(self, name, triggers, targets):
         self.name = name
@@ -114,13 +173,10 @@ class TestCase:
         self.targets = targets
         self.passed = False
 
-    def run(self, runners):
-        header = f"{self.name}"
-        while len(header) < 96:
-            header = f"{header}."
-        print(header, end="", flush=True)
+    def run(self, runners, reporter):
+        reporter.start_test_case(self.name)
         flows = self._start_flows(runners)
-        print(".", end="", flush=True)
+        reporter.all_flows_started()
         min_started_at = datetime.utcnow()
         missing = []
         for s in flows:
@@ -135,19 +191,8 @@ class TestCase:
         except SearchTimeoutError as e:
             missing += e.missing
             self.passed = False
-        if self.passed:
-            print(".", end="", flush=True)
-            self.passed = self._verify_metadata()
-        else:
-            print("!", end="", flush=True)
-        if self.passed:
-            print("PASS", flush=True)
-        else:
-            print("FAIL", flush=True)
-            if len(missing) == 1:
-                print(f"Missing workflow: {missing[0]}")
-            elif len(missing) > 1:
-                print(f"Missing workflows: {', '.join(missing)}")
+        reporter.all_expected_flows_succeeded(self.passed)
+        reporter.finish_test_case(self.passed, reason=missing)
 
     def _start_flows(self, runners):
         pending = []
@@ -234,11 +279,27 @@ class Test:
 
     def _compile_log(self):
         names = glob.glob("FLOW_NAME_*")
-        with open("FLOW_NAMES", "a+") as master_file:
+        contents = []
+
+        def key(item):
+            if item.find(".") > -1:
+                return (len(item), item)
+            else:
+                return (0, item)
+
+        with open("FLOW_NAMES", "w+") as master_file:
+            for line in master_file.readlines():
+                contents.append(line)
             for name in names:
                 with open(name, "r") as fd:
-                    master_file.writelines(fd.readlines())
+                    new_lines = fd.readlines()
+                    for new_name in new_lines:
+                        if new_name not in contents:
+                            contents.append(new_name)
                 os.remove(name)
+            contents.sort(key=key, reverse=True)
+            master_file.truncate()
+            master_file.writelines(contents)
 
     def add_case(self, name, trigger_flow, targets):
         if self.prefix != "":
@@ -247,11 +308,11 @@ class Test:
             targets = [targets]
         self.cases.append(TestCase(name, trigger_flow, targets))
 
-    def run(self):
+    def run(self, reporter):
         self.setup()
         self.cases = shuffle(self.cases)
         for case in self.cases:
-            case.run(self.runners)
+            case.run(self.runners, reporter)
 
     def _format_case_name(self, case_name):
         while len(case_name) < 55:

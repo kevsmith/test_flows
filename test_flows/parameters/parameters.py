@@ -3,7 +3,7 @@ from metaflow import FlowSpec, step, trigger_on
 from metaflow.parameters import Parameter
 
 
-@trigger_on(event="run-me")
+@trigger_on(events=["run-me"])
 class ParametersFlow(FlowSpec):
 
     person = Parameter(name="person", required=True, type=str)

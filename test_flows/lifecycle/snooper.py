@@ -1,7 +1,7 @@
 from metaflow import FlowSpec, trigger_on, step
 
 
-@trigger_on(event="kevsmith_test.user.kevsmith.helloflow.finished")
+@trigger_on(events=["kevsmith_test.user.kevsmith.helloflow.finished"])
 class SnooperFlow(FlowSpec):
     @step
     def start(self):

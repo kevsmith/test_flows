@@ -1,8 +1,7 @@
 from metaflow import FlowSpec, step, trigger_on, project
 
 
-
-@trigger_on(flow="HelloFlow")
+@trigger_on(flows=["HelloFlow"])
 @project(name="kevsmith_test")
 class GoodbyeFlow(FlowSpec):
     @step

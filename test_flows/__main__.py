@@ -3,8 +3,15 @@ import random
 from re import VERBOSE
 import sys
 
-from test_flows import lifecycle, parameters, user_events, hybrid, reset
-from test_flows.flow_tester import run_tests
+from test_flows import (
+    lifecycle,
+    parameters,
+    user_events,
+    hybrid,
+    reset,
+    parameter_types,
+)
+from test_flows.flow_tester import run_tests, CLIReporter
 
 from kubernetes import config
 
@@ -46,7 +53,7 @@ def main(args):
     random.seed(t)
     all_tests = []
     if len(args) == 0:
-        args = ["hy", "li", "pa", "re", "us"]
+        args = ["hy", "li", "pa", "re", "us", "ty"]
     seen = []
     for arg in args:
         if arg in seen:
@@ -65,6 +72,9 @@ def main(args):
         elif arg.startswith("re"):
             all_tests = reset.tests(tests=all_tests)
             seen.append(arg)
+        elif arg.startswith("ty"):
+            all_tests = parameter_types.tests(tests=all_tests)
+            seen.append(arg)
         elif arg.startswith("hy"):
             all_tests = hybrid.tests(tests=all_tests)
         elif arg in ["-h", "--help"]:
@@ -82,7 +92,8 @@ def main(args):
         for i in range(random.randint(1, len(all_tests))):
             random.shuffle(all_tests)
 
-    run_tests(all_tests)
+    reporter = CLIReporter()
+    run_tests(all_tests, reporter)
 
 
 if __name__ == "__main__":

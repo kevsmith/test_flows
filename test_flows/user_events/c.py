@@ -2,7 +2,7 @@ from metaflow import FlowSpec, trigger_on, step
 from metaflow.parameters import Parameter
 
 
-@trigger_on(event="my.other.other.event")
+@trigger_on(events=["my.other.other.event"])
 class CFlow(FlowSpec):
     @step
     def start(self):
