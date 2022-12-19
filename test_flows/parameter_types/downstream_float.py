@@ -2,8 +2,8 @@ from metaflow import FlowSpec, step, trigger_on
 from metaflow.parameters import Parameter
 
 
-@trigger_on(events=["downstream.floats"], mapping={"name": "my_float"})
-class DownstreamIntFlow(FlowSpec):
+@trigger_on(events=["downstream.floats"], mappings={"value": "my_float"})
+class DownstreamFloatFlow(FlowSpec):
     value = Parameter(name="value", type=float)
 
     @step
@@ -15,3 +15,7 @@ class DownstreamIntFlow(FlowSpec):
     @step
     def end(self):
         print("Done")
+
+
+if __name__ == "__main__":
+    DownstreamFloatFlow()

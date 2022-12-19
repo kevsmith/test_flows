@@ -2,7 +2,7 @@ from metaflow import FlowSpec, step, trigger_on
 from metaflow.parameters import Parameter
 
 
-@trigger_on(events=["downstream.strings"], mapping={"name": "my_string"})
+@trigger_on(events=["downstream.strings"], mappings={"name": "my_string"})
 class DownstreamStringFlow(FlowSpec):
     text = Parameter(name="name", type=str)
 
@@ -15,3 +15,7 @@ class DownstreamStringFlow(FlowSpec):
     @step
     def end(self):
         print("Done")
+
+
+if __name__ == "__main__":
+    DownstreamStringFlow()

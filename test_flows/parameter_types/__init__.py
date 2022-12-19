@@ -6,44 +6,14 @@ def tests(tests=[]):
 
     t = Test(*rs, prefix=__package__)
 
-    t.add_case(
-        "passes parameter types correctly",
-        "parameter_fanout.py",
-        [
-            "downstream_string.py",
-            "downstream_string_ns.py",
-            "downstream_int.py",
-            "downstream_int_ns.py",
-            "downstream_float.py",
-            "downstream_float_ns.py",
-        ],
-    )
+    test_types = ["string", "int", "float", "list", "dict"]
 
-    t.add_case(
-        "triggers on user event & passes param",
-        "short.py",
-        "parameters.py",
-    )
-    t.add_case(
-        "(@project) triggers on user event & passes param",
-        "short_ns.py",
-        "parameters_ns.py",
-    )
-    t.add_case(
-        "triggers on user events from multiple flows & passes params",
-        ["given_name.py", "surname.py"],
-        "full_name.py",
-    )
-    t.add_case(
-        "(@project) triggers on user events from multiple flows & passes params",
-        ["given_name_ns.py", "surname_ns.py"],
-        "full_name_ns.py",
-    )
-    t.add_case(
-        "triggers on a user event and maps multiple params",
-        ["message.py"],
-        "template.py",
-    )
+    for tt in test_types:
+        t.add_case(
+            f"passes {tt} parameters correctly",
+            f"upstream_{tt}.py",
+            [f"downstream_{tt}.py", f"downtream_{tt}ns.py"],
+        )
 
     tests.append(t)
     return tests

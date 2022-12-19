@@ -3,10 +3,10 @@ from metaflow.parameters import Parameter
 
 
 @trigger_on(
-    events=["koala.user.kevsmith.downstream.floats"], mapping={"value": "my_float"}
+    events=["koala.user.kevsmith.downstream.floats"], mappings={"value": "my_float"}
 )
-class DownstreamIntFlow(FlowSpec):
-    value = Parameter(name="value", type=int)
+class DownstreamFloatNsFlow(FlowSpec):
+    value = Parameter(name="value", type=float)
 
     @step
     def start(self):
@@ -17,3 +17,7 @@ class DownstreamIntFlow(FlowSpec):
     @step
     def end(self):
         print("Done")
+
+
+if __name__ == "__main__":
+    DownstreamFloatNsFlow()

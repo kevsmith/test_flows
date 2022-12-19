@@ -3,7 +3,7 @@ from metaflow.parameters import Parameter
 
 
 @trigger_on(
-    events=["koala.user.kevsmith.downstream.strings"], mapping={"name": "my_string"}
+    events=["koala.user.kevsmith.downstream.strings"], mappings={"name": "my_string"}
 )
 class DownstreamStringNsFlow(FlowSpec):
     text = Parameter(name="name", type=str)
@@ -17,3 +17,7 @@ class DownstreamStringNsFlow(FlowSpec):
     @step
     def end(self):
         print("Done")
+
+
+if __name__ == "__main__":
+    DownstreamStringNsFlow()
