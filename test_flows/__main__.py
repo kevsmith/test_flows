@@ -26,7 +26,17 @@ def print_help(name):
     )
 
 
+def clear_work_files():
+    import glob
+    import os
+
+    names = glob.glob("FLOW_NAME_*")
+    for name in names:
+        os.remove(name)
+
+
 def main(args):
+    clear_work_files()
     config.load_kube_config()
     t = int(datetime.timestamp(datetime.now()))
     random.seed(t)

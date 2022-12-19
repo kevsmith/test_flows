@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
 import glob
-import json
 import os
 import random
 from multiprocessing import Pool
 from os import getenv, path
+import threading
 from time import sleep
 
 from kubernetes import client
@@ -94,8 +94,9 @@ def run_tests(tests):
 
 
 def setup_runner(runner):
-    sleep(random.random() * 2)
+    sleep(random.random() * 2.0)
     runner.setup(None)
+
 
 def start_runner(runner):
     run = runner[0].run(runner[1])
@@ -181,9 +182,16 @@ class TestCase:
                 raise RuntimeError("Required key missing")
 
         for flow in flows:
-            last_run = sorted(
-                self._req(f"{MD_URL}/flows/{flow}/runs"), key=sorter, reverse=True
-            )[0]
+            runs = self._req(f"{MD_URL}/flows/{flow}/runs")
+            tries = 0
+            while len(runs) == 0 and tries < 5:
+                tries += 1
+                sleep(1)
+                runs = self._req(f"{MD_URL}/flows/{flow}/runs")
+            if len(runs) == 0:
+                print(f"No run metadata found for flow {flow}!")
+                return False
+            last_run = sorted(runs, key=sorter, reverse=True)[0]
             task = sorted(
                 self._req(
                     f"{MD_URL}/flows/{flow}/runs/{last_run['run_number']}/steps/start/tasks"
@@ -218,10 +226,19 @@ class Test:
             print(f"Deployed {', '.join(names)}")
         else:
             print(f"Deployed {names[0]}")
+        self._compile_log()
         if len(self.cases) > 1:
             print(f"Starting {self.prefix} tests", flush=True)
         else:
             print(f"Starting {self.prefix} test", flush=True)
+
+    def _compile_log(self):
+        names = glob.glob("FLOW_NAME_*")
+        with open("FLOW_NAMES", "a+") as master_file:
+            for name in names:
+                with open(name, "r") as fd:
+                    master_file.writelines(fd.readlines())
+                os.remove(name)
 
     def add_case(self, name, trigger_flow, targets):
         if self.prefix != "":

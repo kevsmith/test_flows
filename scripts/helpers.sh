@@ -58,26 +58,60 @@ argo_delete() {
 }
 
 argo_clean_sensors() {
-    kubectl -n metaflow-jobs delete sensors --all=true
+    if [ ! -f FLOW_NAMES ]; then
+        kubectl -n metaflow-jobs delete sensors --all=true
+    else
+        for name in $(cat FLOW_NAMES)
+        do
+            sensor_name=$(echo ${name} | tr -u "." "-")
+            echo "Deleting ${sensor_name}"
+            kubectl -n metaflow-jobs delete sensor ${sensor_name}
+        done
+    fi
 }
 
 argo_clean_templates() {
-    kubectl -n metaflow-jobs delete workflowtemplates --all=true
+    if [ ! -f FLOW_NAMES ]; then
+        kubectl -n metaflow-jobs delete workflowtemplates --all=true
+    else 
+        for name in $(cat FLOW_NAMES)
+        do
+            printf "Deleting %s workflow template\n" ${name}
+            kubectl -n metaflow-jobs delete workflowtemplate ${name}
+        done
+    fi
+}
+
+_is_known_name() {
+    workflow=${1}
+    names=${2}
+    for name in ${names}
+    do
+        result=$(expr ${workflow} : ${name})
+        if [ ${result} -gt 0 ]; then
+            echo "${workflow} : ${name} == yes" 1>&2
+            echo "yes"
+            return
+        else
+            echo "${workflow} : ${name} == no" 1>&2
+        fi
+    done
+    echo "no"
 }
 
 argo_clean_workflows() {
-    if [ $# -lt 1 ]; then
-        kubectl -n metaflow-jobs delete workflows --all=true
+    if [ ! -f FLOW_NAMES ]; then
+        #kubectl -n metaflow-jobs delete workflows --all=true
     else
+        all_names=$(cat FLOW_NAMES)
         all_workflows="$(kubectl -n metaflow-jobs get workflows | grep -v NAME)"
-        while [ "${1}" != "" ]
+        for workflow in $(echo ${all_workflows} | grep "${1}" | awk '{print $1}')
         do
-            for workflow in $(echo ${all_workflows} | grep "${1}" | awk '{print $1}')
-            do
+            result=$(_is_known_name "${workflow}" "${all_names}")
+            if [ "${result}" = "yes" ]; then
                 printf "Deleting %s workflow\n" ${workflow}
-                kubectl -n metaflow-jobs delete --ignore-not-found=false workflow ${workflow}
-            done
-            shift
+                #kubectl -n metaflow-jobs delete --ignore-not-found=false workflow ${workflow}
+            fi
         done
     fi
 }

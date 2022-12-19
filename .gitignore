@@ -3,3 +3,5 @@ __pycache__
 **/*.pyc
 **/__pycache__
 test_flows/fan_out/flow*.py
+FLOW_NAMES
+FLOW_NAME_*
