@@ -7,13 +7,13 @@ def tests(tests=[]):
     t = Test(*rs, prefix=__package__)
     t.add_case(
         "triggers on lifecycle and user events and passes param",
-        ["foo.py", "bar.py"],
-        "baz.py",
+        ["apple.py", "banana.py"],
+        "strawberry.py",
     )
-    # t.add_case(
-    #     "(@project) triggers on lifecycle and user events and passes param",
-    #     ["foo_ns.py", "bar_ns.py"],
-    #     "baz_ns.py",
-    # )
+    t.add_case(
+        "(@project) triggers on lifecycle and user events and passes param",
+        ["foo_ns.py", "bar_ns.py"],
+        "baz_ns.py",
+    )
     tests.append(t)
     return tests

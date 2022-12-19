@@ -12,6 +12,11 @@ from .util import class_name_from_file
 
 REFRESH_INTERVAL = 1
 
+CREATE_EXPR = re.compile(
+    "Workflow ([a-z0-9\.]+) for flow [a-zA-Z0-9_]+ pushed to Argo Workflows successfully\.",
+    re.M,
+)
+
 
 class Refreshable:
     def __init__(self):
@@ -141,18 +146,17 @@ class FlowFinder(Refreshable):
             "argoproj.io", "v1alpha1", "metaflow-jobs", "workflows", limit=200
         )
         for item in result["items"]:
-            started_at = datetime.strptime(
-                item["status"]["startedAt"], "%Y-%m-%dT%H:%M:%SZ"
-            )
-            if started_at <= self.min_started_at:
-                continue          
             if "metadata" in item and "status" in item:
-                id = item["metadata"]["name"]
-                (matches, found_name) = self._matches_name(id)
-                if matches:
-                    run = FlowRun(id, data=item)
-                    self.found.append(run)
-                    self.patterns.pop(found_name, None)
+                started_at = datetime.strptime(
+                    item["status"]["startedAt"], "%Y-%m-%dT%H:%M:%SZ"
+                )
+                if started_at > self.min_started_at:
+                    id = item["metadata"]["name"]
+                    (matches, found_name) = self._matches_name(id)
+                    if matches:
+                        run = FlowRun(id, data=item)
+                        self.found.append(run)
+                        self.patterns.pop(found_name, None)
 
     def has_found_all(self):
         return len(self.patterns) == 0
@@ -168,7 +172,19 @@ class FlowRunner:
         self.api_key = api_key
 
     def setup(self, env):
-        self.creator.must(env)
+        output = self.creator.must(env)
+        match = re.search(CREATE_EXPR, output)
+        if match is None:
+            print(f"{self.flow} creation output not found!")
+            return None
+        else:
+            g = match.groups(1)
+            file_name = f"FLOW_NAME_{int(datetime.timestamp(datetime.utcnow()) * 100)}"
+            with open(file_name, "w+") as fd:
+                if type(g) == str:
+                    fd.write(f"{g}\n")
+                else:
+                    fd.write(f"{g[0]}\n")
 
     def run(self, env):
         output = self.starter.must(env)

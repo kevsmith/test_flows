@@ -2,7 +2,7 @@ from metaflow import FlowSpec, step, trigger_on_finish
 
 
 @trigger_on_finish(flow="HelloFlow")
-class FareTheeWellFlow(FlowSpec):
+class FarewellFlow(FlowSpec):
     @step
     def start(self):
         self.next(self.end)
@@ -13,4 +13,4 @@ class FareTheeWellFlow(FlowSpec):
 
 
 if __name__ == "__main__":
-    FareTheeWellFlow()
+    FarewellFlow()

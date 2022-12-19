@@ -26,6 +26,11 @@ def tests(tests=[]):
         ["given_name_ns.py", "surname_ns.py"],
         "full_name_ns.py",
     )
+    t.add_case(
+        "triggers on a user event and maps multiple params",
+        ["message.py"],
+        "template.py",
+    )
 
     tests.append(t)
     return tests
