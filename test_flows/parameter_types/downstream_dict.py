@@ -2,7 +2,7 @@ from metaflow import FlowSpec, step, trigger_on
 from metaflow.parameters import Parameter
 
 
-@trigger_on(events=["downstream.lists"], mappings={"value": "my_list"})
+@trigger_on(events=["downstream.dicts"], mappings={"value": "my_dict"})
 class DownstreamDictFlow(FlowSpec):
     value = Parameter(name="value", type=dict)
 

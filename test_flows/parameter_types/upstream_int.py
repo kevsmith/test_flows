@@ -6,7 +6,7 @@ from metaflow.plugins import send_event
 class UpstreamIntFlow(FlowSpec):
     @step
     def start(self):
-        self.next(self.send_ints())
+        self.next(self.send_ints)
 
     @step
     def send_ints(self):

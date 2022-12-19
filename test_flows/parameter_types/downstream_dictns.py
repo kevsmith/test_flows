@@ -3,7 +3,7 @@ from metaflow.parameters import Parameter
 
 
 @trigger_on(
-    events=["koala.user.kevsmith.downstream.floats"], mappings={"value": "my_list"}
+    events=["koala.user.kevsmith.downstream.dicts"], mappings={"value": "my_dict"}
 )
 class DownstreamDictNsFlow(FlowSpec):
     value = Parameter(name="value", type=dict)

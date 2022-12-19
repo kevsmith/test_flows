@@ -45,7 +45,6 @@ def wait_for_status(flows, desired):
             if flow.status == desired:
                 finalists.append(flow.id)
             elif flow.status in final_statuses:
-                print(f"Skipping {flow.id}")
                 skipped.append(flow.id)
     return len(finalists) == len(flows)
 
@@ -152,7 +151,7 @@ class CLIReporter(Reporter):
             self.output_line("PASS")
         else:
             self.output_line("FAIL")
-            if reason is not None:
+            if reason is not None and len(reason) > 0:
                 self.output_line(f"Missing: {','.join(reason)}")
 
     def final_status(self, status):
@@ -189,8 +188,11 @@ class TestCase:
             flows = flows + finder.found
             self.passed = wait_for_status(flows, "Succeeded")
         except SearchTimeoutError as e:
-            missing += e.missing
-            self.passed = False
+            if len(e.missing) > 0:
+                missing += e.missing
+                self.passed = False
+            else:
+                self.passed = True
         reporter.all_expected_flows_succeeded(self.passed)
         reporter.finish_test_case(self.passed, reason=missing)
 

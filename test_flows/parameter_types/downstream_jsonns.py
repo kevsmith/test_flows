@@ -3,14 +3,14 @@ from metaflow.parameters import Parameter
 
 
 @trigger_on(
-    events=["koala.user.kevsmith.downstream.lists"], mappings={"value": "my_list"}
+    events=["koala.user.kevsmith.downstream.json"], mappings={"value": "my_json"}
 )
-class DownstreamListNsFlow(FlowSpec):
-    value = Parameter(name="value", type=list)
+class DownstreamJsonNsFlow(FlowSpec):
+    value = Parameter(name="value", type=dict)
 
     @step
     def start(self):
-        expected = ["a", "b", 1, 2, 3.45]
+        expected = {"a": "b", "c": 123, "d": {"a": 456.789, "b": [1, 2, 3, "four"]}}
         if self.value != expected:
             raise RuntimeError(f"Expected value {expected}; got {self.value}")
         self.next(self.end)
@@ -21,4 +21,4 @@ class DownstreamListNsFlow(FlowSpec):
 
 
 if __name__ == "__main__":
-    DownstreamListNsFlow()
+    DownstreamJsonNsFlow()

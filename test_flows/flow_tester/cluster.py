@@ -3,6 +3,7 @@ import re
 from os import path
 import random
 import subprocess
+import sys
 from time import sleep
 
 import requests
@@ -128,10 +129,23 @@ class FlowFinder(Refreshable):
         return client.CustomObjectsApi()
 
     def _matches_name(self, candidate_name):
+        matches = []
         for key in self.patterns.keys():
             pattern = self.patterns[key]
             if re.fullmatch(pattern, candidate_name):
-                return (True, key)
+                matches.append((key, pattern))
+        if len(matches) > 0:
+            if len(matches) == 1:
+                return (True, matches[0][0])
+            else:
+                longest = None
+                for m in matches:
+                    if longest is None:
+                        longest = m
+                    else:
+                        if len(m[1]) > len(longest[1]):
+                            longest = m
+                return (True, longest[0])
         return (False, None)
 
     def _is_deadline_exceeded(self):
@@ -139,9 +153,11 @@ class FlowFinder(Refreshable):
 
     def on_refresh(self):
         if self._is_deadline_exceeded():
-            e = SearchTimeoutError("Flow discovery deadline exceeded")
-            e.missing = self.patterns.keys()
-            raise e
+            if len(self.patterns.keys()) > 0:
+                e = SearchTimeoutError("Flow discovery deadline exceeded")
+                e.missing = self.patterns.keys()
+                raise e
+            return
         result = self.api().list_namespaced_custom_object(
             "argoproj.io",
             "v1alpha1",
@@ -158,7 +174,6 @@ class FlowFinder(Refreshable):
                 if started_at >= self.min_started_at:
                     id = item["metadata"]["name"]
                     (matches, found_name) = self._matches_name(id)
-                    print(f'Name {item["metadata"]["name"]} matches: {found_name}')
                     if matches:
                         run = FlowRun(id, data=item)
                         self.found.append(run)
