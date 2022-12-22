@@ -2,6 +2,7 @@ from metaflow import FlowSpec, step, project
 from metaflow.plugins import send_event
 
 
+@project(name="koala")
 class UpstreamListFlow(FlowSpec):
     @step
     def start(self):
@@ -9,7 +10,11 @@ class UpstreamListFlow(FlowSpec):
 
     @step
     def send_lists(self):
-        send_event("downstream.lists", event_data={"my_list": ["a", "b", 1, 2, 3.45]})
+        send_event(
+            "downstream.lists",
+            event_data={"my_list": ["a", "b", 1, 2, 3.45]},
+            use_project=True,
+        )
         self.next(self.end)
 
     @step

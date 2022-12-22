@@ -3,7 +3,6 @@ from metaflow import FlowSpec, step, project
 from metaflow.plugins import send_event
 
 
-@project(name="koala")
 class UpstreamJsonFlow(FlowSpec):
     @step
     def start(self):
@@ -15,11 +14,6 @@ class UpstreamJsonFlow(FlowSpec):
             {"a": "b", "c": 123, "d": {"a": 456.789, "b": [1, 2, 3, "four"]}}
         )
         send_event("downstream.json", event_data={"my_json": data})
-        send_event(
-            "downstream.json",
-            event_data={"my_json": data},
-            use_project=True,
-        )
         self.next(self.end)
 
     @step

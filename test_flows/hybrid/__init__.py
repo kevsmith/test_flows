@@ -12,8 +12,8 @@ def tests(tests=[]):
     )
     t.add_case(
         "(@project) triggers on lifecycle and user events and passes param",
-        ["foo_ns.py", "bar_ns.py"],
-        "baz_ns.py",
+        ["apple_ns.py", "banana_ns.py"],
+        "strawberry_ns.py",
     )
     tests.append(t)
     return tests

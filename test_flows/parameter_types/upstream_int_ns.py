@@ -2,14 +2,15 @@ from metaflow import FlowSpec, step, project
 from metaflow.plugins import send_event
 
 
-class UpstreamStringFlow(FlowSpec):
+@project(name="koala")
+class UpstreamIntFlow(FlowSpec):
     @step
     def start(self):
-        self.next(self.send_strings)
+        self.next(self.send_ints)
 
     @step
-    def send_strings(self):
-        send_event("downstream.strings", event_data={"my_string": "abc"})
+    def send_ints(self):
+        send_event("downstream.ints", event_data={"my_int": 123}, use_project=True)
         self.next(self.end)
 
     @step
@@ -18,4 +19,4 @@ class UpstreamStringFlow(FlowSpec):
 
 
 if __name__ == "__main__":
-    UpstreamStringFlow()
+    UpstreamIntFlow()

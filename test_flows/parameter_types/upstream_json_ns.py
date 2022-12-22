@@ -1,20 +1,23 @@
 import json
-
 from metaflow import FlowSpec, step, project
 from metaflow.plugins import send_event
 
 
-class UpstreamDictFlow(FlowSpec):
+@project(name="koala")
+class UpstreamJsonFlow(FlowSpec):
     @step
     def start(self):
         self.next(self.send_dicts)
 
     @step
     def send_dicts(self):
-        data = json.dumps({"a": "b", "c": 123, "d": {"a": 456.789}})
+        data = json.dumps(
+            {"a": "b", "c": 123, "d": {"a": 456.789, "b": [1, 2, 3, "four"]}}
+        )
         send_event(
-            "downstream.dicts",
-            event_data={"my_dict": data},
+            "downstream.json",
+            event_data={"my_json": data},
+            use_project=True,
         )
         self.next(self.end)
 
@@ -24,4 +27,4 @@ class UpstreamDictFlow(FlowSpec):
 
 
 if __name__ == "__main__":
-    UpstreamDictFlow()
+    UpstreamJsonFlow()

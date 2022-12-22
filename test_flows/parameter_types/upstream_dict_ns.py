@@ -4,6 +4,7 @@ from metaflow import FlowSpec, step, project
 from metaflow.plugins import send_event
 
 
+@project(name="koala")
 class UpstreamDictFlow(FlowSpec):
     @step
     def start(self):
@@ -15,6 +16,7 @@ class UpstreamDictFlow(FlowSpec):
         send_event(
             "downstream.dicts",
             event_data={"my_dict": data},
+            use_project=True,
         )
         self.next(self.end)
 

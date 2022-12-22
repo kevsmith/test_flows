@@ -11,7 +11,7 @@ from kubernetes import client
 import requests
 
 from .cluster import FlowFinder, FlowRunner, SearchTimeoutError
-from .util import class_name_from_file
+
 
 MD_URL = "http://localhost:8081"
 
@@ -21,6 +21,7 @@ HEADERS = {"x-api-key": getenv("METAFLOW_API_KEY")}
 def shuffle(items):
     import random
 
+    random.seed(int(datetime.timestamp(datetime.utcnow())))
     if len(items) < 2:
         return items
     elif len(items) == 2:
@@ -75,7 +76,10 @@ def pluralize(things, singular, plural):
 
 def run_tests(tests, reporter):
     test_count = len(tests)
+    suite = None
     for t in tests:
+        if suite is None:
+            suite = t.prefix
         t.run(reporter)
 
     passed = True
@@ -84,7 +88,7 @@ def run_tests(tests, reporter):
         if not t.report():
             passed = False
 
-    reporter.final_status(passed)
+    reporter.final_status(suite, passed)
 
 
 def setup_runner(runner):
@@ -114,7 +118,7 @@ class Reporter:
     def finish_test_case(self, status, reason=None):
         pass
 
-    def final_status(self, status):
+    def final_status(self, name, status):
         pass
 
     def output(self, text):
@@ -154,12 +158,15 @@ class CLIReporter(Reporter):
             if reason is not None and len(reason) > 0:
                 self.output_line(f"Missing: {','.join(reason)}")
 
-    def final_status(self, status):
-        self.output_line("")
+    def final_status(self, name, status):
+        header = name
+        while len(header) < 98:
+            header = f"{header}."
         if status:
-            self.output_line("PASS")
+            header += "PASS"
         else:
-            self.output_line("FAIL")
+            header += "FAIL"
+        self.output_line(header)
 
 
 class TestCase:
@@ -269,15 +276,8 @@ class Test:
         pool.map(setup_runner, pending)
         pool.close()
         pool.join()
-        if len(names) > 1:
-            print(f"Deployed {', '.join(names)}")
-        else:
-            print(f"Deployed {names[0]}")
         self._compile_log()
-        if len(self.cases) > 1:
-            print(f"Starting {self.prefix} tests", flush=True)
-        else:
-            print(f"Starting {self.prefix} test", flush=True)
+        print(f"Starting {self.prefix} tests ({len(self.cases)})", flush=True)
 
     def _compile_log(self):
         names = glob.glob("FLOW_NAME_*")

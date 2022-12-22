@@ -1,5 +1,13 @@
-from metaflow import FlowSpec, step, trigger_on
+from metaflow import FlowSpec, step, trigger_on, current
 from metaflow.parameters import Parameter
+
+
+def assert_eq(expected, value, message=None):
+    if expected != value:
+        if message is None:
+            raise RuntimeError(f"Expected {expected} but have {value}")
+        else:
+            raise RuntimeError(f"{message}\nExpected {expected} but have {value}")
 
 
 @trigger_on(
@@ -16,6 +24,7 @@ class FullNameFlow(FlowSpec):
 
     @step
     def start(self):
+        assert_eq(2, len(current.trigger), "Triggering events")
         if self.first_name != "Alan":
             raise RuntimeError("Unexpected first name: %s" % self.first_name)
         if self.last_name != "Turing":

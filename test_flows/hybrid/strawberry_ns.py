@@ -1,14 +1,16 @@
-from metaflow import FlowSpec, step, trigger_on, project
+from metaflow import FlowSpec, step, trigger_on, project, current
 from metaflow.parameters import Parameter
+from test_flows.util import assert_eq
 
 
-@trigger_on(flows=["AppleFlow"], event="banana.is.running")
+@trigger_on(flows=["AppleFlow"], events=["banana.is.running"])
 @project(name="coelacanth")
 class StrawberryFlow(FlowSpec):
     score = Parameter(name="score", required=True, type=int)
-
+    assert_eq(2, len(current.trigger), "Triggering events")
     @step
     def start(self):
+
         if self.score != 100:
             raise RuntimeError("Expected score to be 100; have %d" % self.score)
         self.next(self.end)

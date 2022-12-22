@@ -7,14 +7,19 @@ def tests(tests=[]):
     t = Test(*rs, prefix=__package__)
 
     # test_types = ["string", "int", "float", "list", "dict", "json"]
-    # test_types = ["string", "int", "float", "list", "json"]
-    test_types = ["json"]
+    # test_types = ["string", "int", "float", "list"]
+    test_types = ["string", "int", "float"]
 
     for tt in test_types:
         t.add_case(
             f"passes {tt} parameters correctly",
             f"upstream_{tt}.py",
-            [f"downstream_{tt}.py", f"downstream_{tt}ns.py"],
+            f"downstream_{tt}.py",
+        )
+        t.add_case(
+            f"(@project) passes {tt} parameters correctly",
+            f"upstream_{tt}_ns.py",
+            f"downstream_{tt}ns.py",
         )
 
     tests.append(t)

@@ -9,17 +9,17 @@ def assert_eq(expected, value, message=None):
             raise RuntimeError(f"{message}\nExpected {expected} but have {value}")
 
 
-@trigger_on(events=["my.other.event"])
-class BFlow(FlowSpec):
+@trigger_on(events=["an.event", "another.event"])
+class DownstreamFlow(FlowSpec):
     @step
     def start(self):
+        assert_eq(2, len(current.trigger), "Triggering events")
         self.next(self.end)
 
     @step
     def end(self):
-        assert_eq(1, len(current.trigger), "Triggering events")
-        print("B done")
+        print("Done")
 
 
 if __name__ == "__main__":
-    BFlow()
+    DownstreamFlow()

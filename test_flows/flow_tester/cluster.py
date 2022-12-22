@@ -9,7 +9,9 @@ from time import sleep
 import requests
 from kubernetes import client
 from kubernetes.client.exceptions import ApiException
-from .util import class_name_from_file
+
+from test_flows.flow_tester.util import class_name_from_file
+
 
 REFRESH_INTERVAL = 1
 

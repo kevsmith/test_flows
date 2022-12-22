@@ -2,6 +2,7 @@ from metaflow import FlowSpec, step, project
 from metaflow.plugins import send_event
 
 
+@project(name="koala")
 class UpstreamStringFlow(FlowSpec):
     @step
     def start(self):
@@ -9,7 +10,9 @@ class UpstreamStringFlow(FlowSpec):
 
     @step
     def send_strings(self):
-        send_event("downstream.strings", event_data={"my_string": "abc"})
+        send_event(
+            "downstream.strings", event_data={"my_string": "abc"}, use_project=True
+        )
         self.next(self.end)
 
     @step

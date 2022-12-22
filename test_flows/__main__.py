@@ -25,6 +25,7 @@ def print_help(name):
     hybrid
     lifecycle
     parameters
+    types_parameters
     reset
     user_events
 
