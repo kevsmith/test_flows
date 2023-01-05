@@ -100,9 +100,7 @@ _is_known_name() {
 }
 
 argo_clean_workflows() {
-    if [ ! -f FLOW_NAMES ]; then
-        #kubectl -n metaflow-jobs delete workflows --all=true
-    else
+    if [ -f FLOW_NAMES ]; then
         all_names=$(cat FLOW_NAMES)
         all_workflows="$(kubectl -n metaflow-jobs get workflows | grep -v NAME)"
         for workflow in $(echo ${all_workflows} | grep "${1}" | awk '{print $1}')
